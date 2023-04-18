@@ -1,0 +1,52 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '2.7.9'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'test'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-devtools'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
+	testImplementation('org.springframework.boot:spring-boot-starter-test'){
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	//jwt
+	implementation 'javax.xml.bind:jaxb-api'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+	//rombok
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+
+	//liveServer
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+	//thymeleaf
+	implementation group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '3.2.1'
+
+
+
+
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

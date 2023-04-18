@@ -1,0 +1,46 @@
+/* 헤더 상단 영역 스타일 */
+.header-top {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+  }
+  
+  /* 로고 스타일 */
+  .logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+  }
+  
+  /* 검색창 스타일 */
+  .searchItem {
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchItem input[type="text"] {
+    width: 300px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 20px;
+    margin-right: 10px;
+  }
+  
+  .searchItem button {
+    border-radius: 20px;
+  }
+  
+  /* 네비게이션 바 스타일 */
+  .navbar {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .navbar-nav .nav-link {
+    font-weight: bold;
+    color: #000;
+  }
+  
+  .navbar-nav .nav-link:hover {
+    color: #007bff;
+  }
