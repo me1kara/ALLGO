@@ -17,124 +17,131 @@
         max-width: 500px;
         }
 
-        .is-invalid{
-            background-color: white;
-            color: red;
-        }
         
     </style>
     <script>
         $(document).ready(function() {
-            $('#check-username').click(function() {
-            var username = $('#username').val();
-            // $.ajax({
-            // url: '/checkUsername',
-            // type: 'POST',
-            // data: {username: username},
-            // success: function(response) {
-            //     if (response == 'available') {
-            //     $('#username-message').html('사용 가능한 ID입니다.').css('color', 'green');
-            //     } else {
-            //     $('#username-message').html('이미 사용중인 ID입니다.').css('color', 'red');
-            //     }
-            // }
-            // });
-        });
-        usernameInput = document.getElementById("username");
-        passwordInput = document.getElementById("password");
-        passwordConfirmInput = document.getElementById("password-confirm");
-        emailInput = document.getElementById("email");
-        phoneInput = document.getElementById("phone");
-        ssnInput = document.getElementById("ssn");
-        agreeInput = document.getElementById("agree");
-
-
         
         });
-        const usernameRegex = /^[a-zA-Z0-9]{8,20}$/;
+        const idRegex = /^[a-zA-Z0-9]{8,20}$/;
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^\d{3}-\d{3,4}-\d{4}$/;
         const ssnRegex = /^\d{6}-[1-4]\d{6}$/;
+        const nameRegex = /^[가-힣]{2,4}$/;        
 
-        var usernameCheck;
-        var passwordCheck;
-        var passwordConfirmCheck;
-        var emailCheck;
-        var phoneCheck;
-        var ssnCheck;
-        var agreeCheck;
+        let checkid = document.querySelector('#check-id');
 
         function validateRegisterForm(input) {
             
+            let ck = false;
             // 필수 항목 검사
             let inputText = input.value.trim();
-
-            if(inputText===''){
-                console.log('확인');
-                displayErrorMessage(input,'값을 입력해주세요!');
+            console.log(inputText);
+            if(inputText==''){
                 return false;
             }else{       
                 switch(input.name){
-                    case 'username' : 
-                        if(!usernameRegex.test(inputText)){
+                    case 'id' : 
+                        if(!idRegex.test(inputText)){
                             displayErrorMessage(input, 'ID는 8~20자의 영문 대소문자와 숫자만 입력 가능합니다.');
-                            usernameCheck = false;                         
+                            return false;                        
                         }else {
                             clearErrorMessage(input);
-                            usernameCheck = true;
+                            let ch = validCheck(input);                                                     
+                            return ch;                       
                         }
                         break;
                     case 'password' : 
                         if(!passwordRegex.test(inputText)){
-                            console.log('d');
                             displayErrorMessage(input, '비밀번호는 영문 대소문자, 숫자, 특수문자를 포함한 8자 이상이어야 합니다.');
-                            passwordCheck = false;                         
+                            return false;                         
                         }else {
                             clearErrorMessage(input);
-                            passwordCheck = true;
+                            return true;
                         }
                         break;
                     case 'password-confirm' : 
                         if(inputText!=document.getElementById('password').value.trim()){
                             displayErrorMessage(input, '비밀번호가 일치하지 않습니다.');
-                            passwordConfirmCheck = false;                         
+                            return false;                         
                         }else {
                             clearErrorMessage(input);
-                            passwordConfirmCheck = true;
+                            return true;
                         }
-                        break;
+
                     case 'email' : 
                         if(!emailRegex.test(inputText)){
                             displayErrorMessage(input, '이메일 형식이 올바르지 않습니다.');
-                            emailCheck = false;                         
+                            return false;                         
                         }else {
                             clearErrorMessage(input);
-                            emailCheck = true;
+                            return true;
                         }
                         break;
                     case 'phone' :
                         if(!phoneRegex.test(inputText)){
                             displayErrorMessage(input, '휴대번호 형식이 올바르지 않습니다.');
-                            phoneCheck = false;                         
+                            return false;                         
                         }else {
                             clearErrorMessage(input);
-                            phoneCheck = true;
+                            return true;
                         }
                         break; 
-                    case 'ssn' : 
-                        if(!ssnRegex.test(inputText)){
-                            displayErrorMessage(input, '주민번호 형식이 올바르지 않습니다.');
-                            ssnCheck = false;                         
+                    case 'name' :
+                        if(!nameRegex.test(inputText)){
+                            displayErrorMessage(input, '2~4글자로 입력해주세요!');
+                            return false;                         
                         }else {
                             clearErrorMessage(input);
-                            ssnCheck = true;
+                            return true;
                         }
                         break;
+                    /* 
+                    case 'address' :
+                
+                        if(!nameRegex.test(inputText)){
+                            displayErrorMessage(input, '2~4글자로 입력해주세요!');
+                            nameCheck = false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            nameCheck = true;
+                        }
+                        break; 
+                    */
+                        
                 }
             }
 
             return false;
+            }
+
+            function validCheck(input){
+                let ck = false;
+                if(input.name=='id'){
+                    let uid = input.value;
+
+                    console.log(uid);
+                    $.ajax({
+                        url: '/checkId',
+                        type: 'POST',
+                        async : false,
+                        data: {id: uid},
+                        success: function(response) {
+                            if (response == 'ok') {                                
+                                $('#id-error').html('사용 가능한 ID입니다.').css('color', 'green');
+                                ck = true;
+                            } else {
+                                $('#id-error').html('이미 사용중인 ID입니다.').css('color', 'red');
+                                ck = false;
+                            }
+                        },error: function(response){
+                            ck= false;
+                        }
+                        
+                    });
+                }
+                return ck;
             }
 
 
@@ -142,13 +149,11 @@
 
                 let errorMessageElement = inputElement.nextElementSibling;
 
-                if(inputElement.name=='username'){
-                    errorMessageElement = document.querySelector('#username-error');
-                }else if(inputElement.name=='ssn'){
-                    errorMessageElement = document.querySelector('#ssn-error');
+                if(inputElement.name=='id'){
+                    errorMessageElement = document.querySelector('#id-error');
                 }
-                
-                errorMessageElement.className = 'is-invalid';
+
+                errorMessageElement.style.color = "red";
                 errorMessageElement.innerText = message;
 
                 // Insert the error message after the input element
@@ -156,31 +161,26 @@
             
             function clearErrorMessage(inputElement) {
                 let errorMessageElement = inputElement.nextElementSibling;
-                if(inputElement.name=='username'){
-                    errorMessageElement = document.querySelector('#username-error');
-                }else if(inputElement.name=='ssn'){
-                    errorMessageElement = document.querySelector('#ssn-error');
-                }
+                // if(inputElement.name=='id'){
+                //     errorMessageElement = document.querySelector('#id-error');
+                // }
                 errorMessageElement.innerText = '';
 //              errorMessageElement.style.display = 'none';
-                inputElement.classList.remove('is-invalid');
             }
 
-            function validateRegisterCheck(form){
-                agreeCheck = document.getElementById('agree').checked;
-                let inputs = form.getElementsByClassName('input-data');
+            function validateRegisterCheck(){
+
+                let inputs = document.querySelectorAll('.input-data');
                 for (let i = 0; i < inputs.length; i++) {
-                    if (inputs[i].value.trim() == '') {
-                    return false;
+                    let check = validateRegisterForm(inputs[i]);                   
+                    if (!check) {
+                        inputs[i].focus();
+                        return false;
                     }
                 }
-                console.log('확인');
-                if(usernameCheck && passwordCheck && passwordConfirmCheck && emailCheck && phoneCheck && ssnCheck && agreeCheck == true){
-                    
-                    return true;
-                }else return false;
-
             }
+
+            
 
     </script>
 </head>
@@ -188,19 +188,12 @@
     <div layout:fragment="content">
         <!-- content script -->
         <div class="register-container container">
-            <form class="register-form" id="register-form" onsubmit="return validateRegisterCheck(this)">
+            <form class="register-form" id="register-form" onsubmit="return validateRegisterCheck()">
               <h2>회원가입</h2>
               <div class="form-group register-group">
-                <label for="username">ID</label>
-                <div class="form-group register-group">
-                    <div class="input-group">
-                        <input type="text" class="form-control input-data" id="username" name="username" onblur="validateRegisterForm(this)" autofocus>
-                        <div class="input-group-append">
-                        <button type="button" class="btn btn-secondary" id="check-username">중복확인</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="username-error"></div>
+                <label for="id">ID</label>
+                <input type="text" class="form-control input-data" id="id" name="id" onblur="validateRegisterForm(this)" autofocus>
+                <div id="id-error"></div>
               </div>
               <div class="form-group register-group">
                 <label for="password">비밀번호</label>
@@ -213,6 +206,11 @@
                 <div id="passwordCheck-error"></div>
               </div>
               <div class="form-group register-group">
+                <label for="name">이름</label>
+                <input type="text" class="form-control input-data" id="name" name="name" onblur="validateRegisterForm(this)">
+                <div id="name-error"></div>
+              </div>
+              <div class="form-group register-group">
                 <label for="email">이메일</label>
                 <input type="email" class="form-control input-data" id="email" name="email" onblur="validateRegisterForm(this)">
                 <div id="email-error"></div>
@@ -223,19 +221,14 @@
                 <div id="phone-error"></div>
               </div>
               <div class="form-group register-group">
-                <label for="ssn">주민등록번호</label>
-                <div class="input-group">
-                  <input type="text" class="form-control input-data" id="ssn" name="ssn" onblur="validateRegisterForm(this)">
-                  <div class="input-group-append">
-                    <button type="button" class="btn btn-secondary" id="check-ssn">중복확인</button>
-                  </div>
-                </div>
-                <div id="ssn-error"></div>
+                <label for="address">주소</label>
+                <input type="text" class="form-control input-data" id="address" name="address" onblur="validateRegisterForm(this)">
+                <div id="address-error"></div>
               </div>
               <div class="form-group register-group">
                 <div class="form-check">
-                  <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
-                  <label class="form-check-label" for="agree">본인은 개인정보 수집 및 이용에 동의합니다.</label>
+                  <input type="checkbox" class="form-check-input" id="agreed-terms" name="agreed-terms" required>
+                  <label class="form-check-label" for="agreed-terms">본인은 개인정보 수집 및 이용에 동의합니다.</label>
                 </div>
               </div>
               <div class="form-group register-group text-center">
