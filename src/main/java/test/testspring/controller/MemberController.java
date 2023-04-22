@@ -1,5 +1,6 @@
 package test.testspring.controller;
 
+import net.nurigo.java_sdk.api.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,10 +62,18 @@ public class MemberController {
     @PostMapping("/checkId")
     @ResponseBody
     public String checkId(@RequestParam("id") String id){
-        System.out.println("sadasd");
         Optional<Member> member = memberService.findOne(id);
         return member.isPresent() ? "unable" : "ok";
     }
+
+    @PostMapping("/checkPhone")
+    @ResponseBody
+    public String checkPhone(@RequestParam("phone") String phone){
+        Optional<Member> member = memberService.findOne(phone);
+        return member.isPresent() ? "unable" : "ok";
+    }
+
+
 
 
 }

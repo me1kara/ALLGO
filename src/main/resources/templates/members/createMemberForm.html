@@ -29,7 +29,7 @@
                 url: "/checkId",
                 data: {id:id.value},
                 success: function(data){
-                    if(data!='ok'){
+                    if(data!='able'){
                         console.log("이미 있는 아이디입니다");
                         return false;
                     }else{
@@ -40,11 +40,9 @@
 
                 },
                 error: function(data){
-                   return false;
+                   console.log(data);
                 }
             });
-
-            return false;
         }
         function checkPw(){
             let check = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/;
