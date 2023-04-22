@@ -28,9 +28,16 @@
         const idRegex = /^[a-zA-Z0-9]{8,20}$/;
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^\d{3}-\d{3,4}-\d{4}$/;
+        const phoneRegex = /^\d{3}\d{3,4}\d{4}$/;
         const ssnRegex = /^\d{6}-[1-4]\d{6}$/;
-        const nameRegex = /^[가-힣]{2,4}$/;        
+        const nameRegex = /^[가-힣]{2,4}$/;
+        
+        
+        let phoneCheck =false;
+        let emailCheck =false;
+        let phoneConfirm;
+        let emailConfirm;
+    
 
         function validateRegisterForm(input) {
             
@@ -124,7 +131,7 @@
                         url: '/checkId',
                         type: 'POST',
                         async : false,
-                        data: {id: uid},
+                        data: {'id': uid},
                         success: function(response) {
                             if (response == 'ok') {                                
                                 $('#id-error').html('사용 가능한 ID입니다.').css('color', 'green');
@@ -147,9 +154,13 @@
 
                 let errorMessageElement = inputElement.nextElementSibling;
 
-                if(inputElement.name=='address'){
-                    
-                }else{
+                if(inputElement.name!='address'){
+                    if(inputElement.name=='phone'){
+                        errorMessageElement = document.querySelector('#phone-error');
+                    }else if(inputElement.name=='email'){
+                        errorMessageElement = document.querySelector('#email-error');
+
+                    }
                     errorMessageElement.style.color = "red";
                     errorMessageElement.innerText = message;
                 }
@@ -161,19 +172,34 @@
                 // if(inputElement.name=='id'){
                 //     errorMessageElement = document.querySelector('#id-error');
                 // }
-                if(inputElement.name=='address'){}
-                else errorMessageElement.innerText = '';
-//              errorMessageElement.style.display = 'none';
+                if(inputElement.name!='address'){
+                    if(inputElement.name=='phone'){
+                        errorMessageElement = document.querySelector('#phone-error');
+                    }else if(inputElement.name=='email'){
+                        errorMessageElement = document.querySelector('#email-error');
+
+                    }
+                    errorMessageElement.innerText = '';
+                }
                 
             }
 
             function validateRegisterCheck(){               
                 let inputs = document.querySelectorAll('.input-data');
                 for (let i = 0; i < inputs.length; i++) {
-                      
                     if (validateRegisterForm(inputs[i])==false) {
                         inputs[i].focus();
                         return false;
+                    }else if(inputs[i].name=='phone'){
+                        if(phoneCheck==false){
+                            alert('번호를 인증해주세요!');
+                            return false;
+                        }
+                        if(phone!=inputs[i].value){
+                            alert('수정된 번호도 인증해주세요!');
+                            return false;
+                        }
+                        
                     }
                 }
             }
@@ -189,7 +215,68 @@
                 }).open();
             }
 
-            
+            function verifyPhone() {
+            // 폼에 입력된 전화번호 가져오기
+            const phoneNumber = document.getElementById("phone").value;
+            // 백엔드 API 호출
+            $.ajax({
+                url: "/checkPhone",
+                type: "POST",
+                data: {'phone': phoneNumber},
+                success: function(response) {
+                    document.querySelector('#phoneCode-wrap').style.display='block';     
+                    document.querySelector('#phoneCodeBtn').addEventListener('click',function(){
+                        let code = $('#phone-code').val();
+                        console.log(response);
+                        console.log(code);
+                        if(response==code){
+                            phoneCheck = true;
+                            phoneConfirm = document.querySelector('#phone').value;
+                            alert('일치합니다!');
+                        }else {
+                            phoneCheck = false;
+                            alert('불일치합니다!');
+                        }
+                    })
+                    
+                    
+                },
+                error: function() {
+                    console.error("유효하지 않은 번호입니다!");
+                }
+            });
+            }
+
+            function verifyEmail() {
+            // 폼에 입력된 전화번호 가져오기
+            const email = document.getElementById("email").value;
+            // 백엔드 API 호출
+            $.ajax({
+                url: "/checkEmail",
+                type: "POST",
+                data: {'email': email},
+                success: function(response) {
+                    document.querySelector('#emailCode-wrap').style.display='block';     
+                    document.querySelector('#emailCodeBtn').addEventListener('click',function(){
+                        let code = $('#email-code').val();
+                        console.log(response);
+                        console.log(code);
+                        if(response==code){
+                            emailCheck = true;
+                            emailConfirm = document.querySelector('#email').value;
+                            alert('일치합니다!');
+                        }else {
+                            phoneCheck = false;
+                            alert('불일치합니다!');
+                        }
+                    })
+  
+                },
+                error: function() {
+                    console.error("유효하지 않은 번호입니다!");
+                }
+            });
+            }
 
     </script>
 </head>
@@ -219,27 +306,59 @@
                 <input type="text" class="form-control input-data" id="name" name="name" onblur="validateRegisterForm(this)">
                 <div id="name-error"></div>
               </div>
-              <div class="form-group register-group">
+              <!-- <div class="form-group register-group">
                 <label for="email">이메일</label>
                 <input type="email" class="form-control input-data" id="email" name="email" onblur="validateRegisterForm(this)">
                 <div id="email-error"></div>
+              </div> -->
+
+              <div class="form-group register-group">
+                <label for="email">이메일</label>
+                <div class="input-group">
+                  <input type="email" class="form-control input-data" id="email" name="email" onblur="validateRegisterForm(this)">
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary" onclick="verifyEmail()">인증</button>
+                  </div>
+                </div>
+                <div id="email-error"></div>
               </div>
+              <div class="form-group register-group" id="emailCode-wrap" style="display: none;">
+                <label for="email-code">인증 코드</label>
+                <input type="text" class="form-control" id="email-code" name="email-code">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary" id="emailCodeBtn">인증확인</button>
+                </div>
+              </div>
+
+
               <div class="form-group register-group">
                 <label for="phone">전화번호</label>
-                <input type="tel" class="form-control input-data" id="phone" name="phone" onblur="validateRegisterForm(this)">
+                <div class="input-group">
+                  <input type="tel" class="form-control input-data" id="phone" name="phone" onblur="validateRegisterForm(this)">
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary" onclick="verifyPhone()">인증</button>
+                  </div>
+                </div>
                 <div id="phone-error"></div>
+              </div>
+              <div class="form-group register-group" id="phoneCode-wrap" style="display: none;">
+                <label for="phone-code">인증 코드</label>
+                <input type="text" class="form-control" id="phone-code" name="phone-code">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary" id="phoneCodeBtn">인증확인</button>
+                </div>
               </div>
               <div class="form-group register-group">
                 <label for="address">주소</label>
                 <div class="input-group">
-                  <input type="text" class="form-control input-data" id="address" name="address" onblur="validateRegisterForm(this)">
+                  <input type="text" class="form-control input-data" id="address" name="address" readonly onblur="validateRegisterForm(this)">
                   <div class="input-group-append">
                     <button type="button" class="btn btn-outline-secondary" onclick="searchAddress()">검색</button>
                   </div>
                 </div>
                 <div class="mt-2">
                   <label for="addressDetail">상세주소</label>
-                  <input type="text" class="form-control input-data" id="addressDetail" name="addressDetail">
+                  <input type="text" class="form-control" id="addressDetail" name="addressDetail">
                 </div>
                 <div id="address-error"></div>
               </div>
