@@ -1,5 +1,7 @@
 package test.testspring.controller;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.json.simple.JSONObject;
@@ -9,9 +11,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import test.testspring.domain.Member;
+import test.testspring.security.SecurityController;
+import test.testspring.security.SecurityService;
 import test.testspring.service.EmailService;
 import test.testspring.service.MemberService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.swing.text.html.Option;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +28,11 @@ import java.util.Random;
 @Controller
 public class MemberController {
 
+
+
     private final MemberService memberService;
+    @Autowired
+    private SecurityService securityService;
     @Autowired
     private EmailService emailService;
 
@@ -40,6 +51,23 @@ public class MemberController {
     public String loginForm(){
 
         return "login/loginForm";
+    }
+    @PostMapping("/login")
+    public String checkMember(Model model, Member member, HttpServletResponse response, HttpServletRequest request){
+        boolean result = memberService.isValidMember(member);
+        //로그인 성공시
+        if (result) {
+            String token = securityService.createToken(member.getId(),member.getRole(),(2*1000*60));
+            Cookie cookie = new Cookie("jwt", token);
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+        } else {
+            // 로그인 실패 시
+            model.addAttribute("id",member.getId());
+            return "login/loginForm";
+        }
+
+        return "home";
     }
 
     @GetMapping("/registerForm")
@@ -118,9 +146,17 @@ public class MemberController {
     @ResponseBody
     public String emailConfirm(@RequestParam String email) throws Exception {
         String confirm = emailService.sendSimpleMessage(email);
-        System.out.println(confirm);
         return confirm;
     }
+
+    @PostMapping("/joinMember")
+    public String joinMember(Member member, @RequestParam String addressDetail){
+        member.setAddress(member.getAddress()+addressDetail);
+        memberService.join(member);
+        return "redirect:/joinResult";
+    }
+
+
 
 
 

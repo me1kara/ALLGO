@@ -1,4 +1,4 @@
-package test.testspring;
+package test.testspring.config;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import test.testspring.repository.JpaMemberRepository;
 import test.testspring.repository.MemberRepository;
+import test.testspring.security.SecurityService;
 import test.testspring.service.MemberService;
 
 import javax.persistence.EntityManager;
@@ -24,13 +26,17 @@ public class SpringConfig {
         this.em = em;
     }*/
     MemberRepository memberRepository;
+    SecurityService securityService;
+    PasswordEncoder passwordEncoder;
     @Autowired
-    public SpringConfig(MemberRepository memberRepository) {
+    public SpringConfig(MemberRepository memberRepository, SecurityService securityService, PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
+        this.securityService =securityService;
+        this.passwordEncoder = passwordEncoder;
     }
     @Bean
     public MemberService memberService(){
-        return new MemberService(memberRepository);
+        return new MemberService(memberRepository, securityService, passwordEncoder);
     }
 /*    @Bean
     public MemberRepository memberRepository(){

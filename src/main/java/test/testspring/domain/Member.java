@@ -16,8 +16,18 @@ public class Member {
     private String address;
     private String phone;
     private boolean agreed_terms;
+
+    private String role;
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Date created_at;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public String getId() {
         return id;
