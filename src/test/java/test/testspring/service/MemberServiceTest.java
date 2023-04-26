@@ -24,8 +24,7 @@ class MemberServiceTest {
     @Test
     void join() {
         //given
-        Member member = new Member();
-        member.setName("hello");
+        Member member = Member.builder().name("hello").build();
         //when
         String saveId = memberService.join(member);
         //then
@@ -37,10 +36,10 @@ class MemberServiceTest {
     @Test
     public void 중복_회원_예외(){
         //given
-        Member member1 = new Member();
+        Member member1 = Member.builder().name("spring").build();
         member1.setName("spring");
 
-        Member member2 = new Member();
+        Member member2 = Member.builder().name("spring").build();
         member2.setName("spring");
 
         //when

@@ -1,33 +1,80 @@
 package test.testspring.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.springframework.lang.Nullable;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Indexed;
+
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 
 @Entity
-public class Member {
+@NoArgsConstructor
+public class Member implements UserDetails {
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
     @Id
     private String id;
+    @Nullable
     private String name;
+    @Nullable
     private String email;
+    @Nullable
     private String password;
+    @Nullable
     private String address;
+    @Nullable
     private String phone;
+    @Nullable
     private boolean agreed_terms;
-
+    @Nullable
     private String role;
+    @Builder
+    public Member(String id, String name, String email, String password, String role, String phone, boolean agreed_terms, String address){
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.phone = phone;
+        this.agreed_terms = agreed_terms;
+        this.address = address;
+    }
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Date created_at;
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public String getId() {
         return id;
@@ -83,6 +130,14 @@ public class Member {
 
     public void setAgreed_terms(boolean agreed_terms) {
         this.agreed_terms = agreed_terms;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Date getCreated_at() {

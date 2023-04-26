@@ -70,7 +70,6 @@ public class JdbcMemberRepository implements MemberRepository {
     @Override
     public List<Member> findAll() {
         String sql ="select * from member";
-
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs =null;
@@ -80,9 +79,10 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
             while(rs.next()){
-                Member member = new Member();
-                member.setName(rs.getString("name"));
-                member.setId(rs.getString("id"));
+                Member member = Member.builder()
+                                .name(rs.getString(("name")))
+                                .id(rs.getString("id"))
+                                .build();
                 members.add(member);
             }
         return members;

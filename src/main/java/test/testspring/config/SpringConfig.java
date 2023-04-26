@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import test.testspring.repository.JpaMemberRepository;
 import test.testspring.repository.MemberRepository;
 import test.testspring.security.SecurityService;
@@ -25,19 +27,19 @@ public class SpringConfig {
     public SpringConfig(EntityManager em) {
         this.em = em;
     }*/
-    MemberRepository memberRepository;
-    SecurityService securityService;
-    PasswordEncoder passwordEncoder;
-    @Autowired
-    public SpringConfig(MemberRepository memberRepository, SecurityService securityService, PasswordEncoder passwordEncoder) {
-        this.memberRepository = memberRepository;
-        this.securityService =securityService;
-        this.passwordEncoder = passwordEncoder;
-    }
-    @Bean
-    public MemberService memberService(){
-        return new MemberService(memberRepository, securityService, passwordEncoder);
-    }
+//    MemberRepository memberRepository;
+//    SecurityService securityService;
+//    PasswordEncoder passwordEncoder;
+//    @Autowired
+//    public SpringConfig(MemberRepository memberRepository, SecurityService securityService, PasswordEncoder passwordEncoder) {
+//        this.memberRepository = memberRepository;
+//        this.securityService =securityService;
+//        this.passwordEncoder = passwordEncoder;
+//    }
+//    @Bean
+//    public MemberService memberService(){
+//        return new MemberService(memberRepository, securityService, passwordEncoder);
+//    }
 /*    @Bean
     public MemberRepository memberRepository(){
         return new MemberRepository();
@@ -49,6 +51,7 @@ public class SpringConfig {
         return new TimeTraceAop();
     }
 */
+
     @Value("${mail.smtp.port}")
     private int port;
     @Value("${mail.smtp.socketFactory.port}")
@@ -70,8 +73,6 @@ public class SpringConfig {
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost("smtp.gmail.com");
-        System.out.println(id);
-        System.out.println(password);
         javaMailSender.setUsername(id);
         javaMailSender.setPassword(password);
         javaMailSender.setPort(port);

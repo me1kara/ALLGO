@@ -14,7 +14,7 @@
             margin:0 0;
         }
         a{
-           text-decoration:none;   
+           text-decoration:none;
         }
         a:hover{
             color: red;
@@ -43,29 +43,20 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1 style="text-align: center;">작심천일</h1>
-        </header>
-        <section>
-            <artilce>
-                <form action="login" onsubmit="return check();" name="form" method="post">
-                    <table style="margin: 0 auto;">
-                        <tr><th><label for="id">ID </label></th><td><input type="text" id="id" name="id" required></td><td rowspan="2"><input class="btn btn-primary" type="submit" value="로그인"></td></tr>
-                        <tr><th><label for="pw">PW </label></th><td><input type="text" id="pw" name="pw" required></td></tr>
-
-                        <tr><td><a href="members/new">회원가입</a></td><td>/<a href="members/findId">아이디 찾기</a></td><td align="right"><a href="members">회원목록</a></td></tr>
-                        
-                    </table>
-                </form>
-            </artilce>
-        </section>
-
-        <button id="modal">모달</button>
-        <dialog id="d_modal">
-            hello
-        </dialog>
-    </div>
+<div class="container">
+    <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Security Test</h2>
+        <p>
+            <label for="username" class="sr-only">Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Username" required="" autofocus="">
+        </p>
+        <p>
+            <label for="password" class="sr-only">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
+        </p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+</div>
 
 </body>
 </html>

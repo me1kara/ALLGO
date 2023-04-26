@@ -47,13 +47,14 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("/login")
+    @GetMapping("memberLogin")
     public String loginForm(){
 
         return "login/loginForm";
     }
-    @PostMapping("/login")
-    public String checkMember(Model model, Member member, HttpServletResponse response, HttpServletRequest request){
+
+    @PostMapping("memberLogin")
+    public String checkMember(Model model, Member member, HttpServletResponse response){
         boolean result = memberService.isValidMember(member);
         //로그인 성공시
         if (result) {
@@ -68,6 +69,11 @@ public class MemberController {
         }
 
         return "home";
+    }
+
+    @RequestMapping("/login")
+    public String login(){
+        return "login";
     }
 
     @GetMapping("/registerForm")
@@ -120,8 +126,6 @@ public class MemberController {
             numStr+=ran;
         }
 
-        System.out.println("수신자 번호 : " + phone);
-        System.out.println("인증번호 : " + numStr);
 
         Message coolsms = new Message(COOL_KEY, COOL_SECRETKEY);
 

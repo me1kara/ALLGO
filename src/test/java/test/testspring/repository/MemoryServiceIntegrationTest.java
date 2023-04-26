@@ -29,8 +29,7 @@ public class MemoryServiceIntegrationTest {
 
     @Test
     public void save(){
-        Member member = new Member();
-        member.setName("spring");
+        Member member = Member.builder().name("spring").build();
 
         repository.save(member);
         Member result = repository.findById(member.getId()).get();
@@ -40,12 +39,10 @@ public class MemoryServiceIntegrationTest {
 
     @Test
     public void findByName(){
-        Member member1 = new Member();
-        member1.setName("spring");
+        Member member1 = Member.builder().name("spring").build();
         repository.save(member1);
 
-        Member member2 = new Member();
-        member2.setName("spring2");
+        Member member2 = Member.builder().name("spring2").build();
         repository.save(member2);
 
         Member result = repository.findByName("spring2").get();
@@ -55,12 +52,10 @@ public class MemoryServiceIntegrationTest {
 
     @Test
     public void findAll(){
-        Member member1 = new Member();
-        member1.setName("spring1");
+        Member member1 = Member.builder().name("spring1").build();
         repository.save(member1);
 
-        Member member2 = new Member();
-        member2.setName("spring2");
+        Member member2 = Member.builder().name("spring2").build();
         repository.save(member2);
 
         List<Member> result = repository.findAll();

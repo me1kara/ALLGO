@@ -1,0 +1,19 @@
+
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  profiles:
+    include: db,apiKeys,email
+  thymeleaf:
+    cache: false
+  security:
+    user:
+      name : user1
+      password : 1234
+      roles : USER
+
+
+
+

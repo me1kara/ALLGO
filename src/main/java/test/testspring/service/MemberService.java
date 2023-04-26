@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Transactional
+@Service
 public class MemberService {
     private final MemberRepository memberRepository;
     private final SecurityService securityService;
@@ -48,8 +49,6 @@ public class MemberService {
                 });
 
     }
-
-
 
     public List<Member> findMembers(){
         return memberRepository.findAll();

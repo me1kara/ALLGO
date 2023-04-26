@@ -22,7 +22,7 @@ public class SecurityService {
     private static final String secret_key = "asdsabsabsdasqweddddddddddddddddddddddqweqeqweqweqweqweqwe";
 
     //createToken
-    public String createToken(String id,String role, long expTime){
+    public String createToken(String id, String role, long expTime) {
         if (expTime <= 0) {
             throw new IllegalArgumentException("만료시간이 0보다 커야합니다.");
         }
@@ -45,11 +45,10 @@ public class SecurityService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
-        Member member = new Member();
-        member.setId(claims.getSubject());
-        member.setRole(claims.get("role", String.class));
-        return member;
+        return Member.builder()
+                .id(claims.getSubject())
+                .role(claims.get("role", String.class))
+                .build();
     }
 
     // Request의 Header에서 token 값을 가져옵니다. "X-AUTH-TOKEN" : "TOKEN값'
