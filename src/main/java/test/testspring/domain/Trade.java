@@ -1,4 +1,5 @@
 package test.testspring.domain;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "trade")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class Trade {
 
@@ -48,13 +50,4 @@ public class Trade {
     @JoinColumn(name = "product_no", insertable = false, updatable = false)
     private Product product;
 
-    @Builder
-    public Trade(String sellerId, String buyerId, Long productNo, int tradeAmount, BigDecimal totalPrice) {
-        this.seller_id = sellerId;
-        this.buyer_id = buyerId;
-        this.product_no = productNo;
-        this.trade_amount = tradeAmount;
-        this.total_price = totalPrice;
-        this.trade_at = LocalDateTime.now();
-    }
 }

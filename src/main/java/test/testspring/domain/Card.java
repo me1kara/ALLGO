@@ -1,5 +1,6 @@
 package test.testspring.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 public class Card {
     @Id
@@ -34,12 +37,4 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", insertable = false, updatable = false)
     private Member member;
-    @Builder
-    public Card(String uid, String type, String no, LocalDateTime endAt) {
-        this.uid = uid;
-        this.type = type;
-        this.no = no;
-        this.createdAt = LocalDateTime.now();
-        this.endAt = endAt;
-    }
 }

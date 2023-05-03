@@ -1,6 +1,7 @@
 package test.testspring.domain;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Entity
+@AllArgsConstructor
+@Table(name="productimg")
 public class ProductImg {
 
     @Id
@@ -23,10 +26,5 @@ public class ProductImg {
     @JoinColumn(name = "pid", insertable = false, updatable = false)
     private Product product;
 
-    @Builder
-    public ProductImg(Long pid, String url) {
-        this.pid = pid;
-        this.url = url;
-    }
 
 }

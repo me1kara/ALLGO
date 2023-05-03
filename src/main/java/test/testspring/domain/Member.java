@@ -8,8 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Indexed;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -61,6 +63,9 @@ public class Member implements UserDetails {
     private boolean agreed_terms;
     @Nullable
     private String role;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Card> cards = new ArrayList<>();
+
     @Builder
     public Member(String id, String name, String email, String password, String role, String phone, boolean agreed_terms, String address){
         this.id = id;

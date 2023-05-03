@@ -1,0 +1,193 @@
+.search-form {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.search-input input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.search-button button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* 카드 리스트 */
+.cards-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.card-top {
+  width: 32%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: #333;
+  padding: 20px;
+  height: 100%;
+}
+
+.card-photo img {
+  max-width: 100%;
+}
+
+.card-title {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-price {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.card-counts {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.card-counts span {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #f2f2f2;
+}
+
+.card-counts span:first-child {
+  margin-right: 5px;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination li {
+  margin-right: 10px;
+}
+
+.pagination li:last-child {
+  margin-right: 0;
+}
+
+.pagination a, .pagination span {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #f2f2f2;
+  color: #333;
+  text-decoration: none;
+}
+
+.pagination a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination .disabled a, .pagination .disabled span {
+  cursor: default;
+  background-color: #ccc;
+  color: #666;
+}
+
+.pagination .active a, .pagination .active span {
+  background-color: #007bff;
+  color: #fff;
+  cursor: default;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f2f2f2;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+.search-type {
+  font-size: 16px;
+  margin-right: 10px;
+  padding: 5px;
+  border: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.search-input {
+  position: relative;
+}
+
+.search-input input {
+  font-size: 16px;
+  padding: 5px 10px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
+.search-input input:focus {
+  outline: none;
+}
+
+.search-button button {
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  padding: 5px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.search-button button:hover {
+  background-color: #0062cc;
+}
+
+main{
+    width:80%;
+    margin : 0 auto;
+}
