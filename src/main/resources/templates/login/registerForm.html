@@ -59,7 +59,7 @@
                         break;
                     case 'password' : 
                         if(!passwordRegex.test(inputText)){
-                            displayErrorMessage(input, '비밀번호는 영문 대소문자, 숫자, 특수문자를 포함한 8자 이상이어야 합니다.');
+                            displayErrorMessage(input, '비밀번호는 영문 대소문자, 숫자, 특수문자를 포함한 8자-20자 사이여야 합니다.');
                             return false;                         
                         }else {
                             clearErrorMessage(input);
@@ -227,8 +227,6 @@
                     document.querySelector('#phoneCode-wrap').style.display='block';     
                     document.querySelector('#phoneCodeBtn').addEventListener('click',function(){
                         let code = $('#phone-code').val();
-                        console.log(response);
-                        console.log(code);
                         if(response==code){
                             phoneCheck = true;
                             phoneConfirm = document.querySelector('#phone').value;
@@ -248,7 +246,6 @@
             }
 
             function verifyEmail() {
-            // 폼에 입력된 전화번호 가져오기
             const email = document.getElementById("email").value;
             // 백엔드 API 호출
             $.ajax({
@@ -259,8 +256,6 @@
                     document.querySelector('#emailCode-wrap').style.display='block';     
                     document.querySelector('#emailCodeBtn').addEventListener('click',function(){
                         let code = $('#email-code').val();
-                        console.log(response);
-                        console.log(code);
                         if(response==code){
                             emailCheck = true;
                             emailConfirm = document.querySelector('#email').value;
@@ -273,7 +268,7 @@
   
                 },
                 error: function() {
-                    console.error("유효하지 않은 번호입니다!");
+                    console.error("유효하지 않은 이메일입니다!");
                 }
             });
             }

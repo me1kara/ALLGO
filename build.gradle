@@ -37,6 +37,8 @@ dependencies {
 
 	//security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+//  Temporary explicit version to fix Thymeleaf bug
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
 	implementation 'org.springframework.security:spring-security-test'
 
 

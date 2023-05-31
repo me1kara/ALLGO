@@ -39,7 +39,7 @@ public class Product {
     private int view;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductImg> productImgs = new ArrayList<>();
+    private final List<ProductImg> productImgs = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name="cate_code")

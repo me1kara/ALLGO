@@ -1,6 +1,5 @@
 package test.testspring.domain;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +8,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "trade")
+@Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Trade {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +34,8 @@ public class Trade {
     @Column(name = "total_price")
     private BigDecimal total_price;
 
-    @Column(name = "trade_at")
-    private LocalDateTime trade_at;
+    @Column(name = "payment_at")
+    private LocalDateTime payment_at;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", insertable = false, updatable = false)
@@ -49,5 +48,9 @@ public class Trade {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_no", insertable = false, updatable = false)
     private Product product;
+
+    @OneToOne
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
 }

@@ -73,42 +73,23 @@
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
           transition: background-color 0.2s ease-in-out;
         }
-
         .form-group button[type="submit"]:hover {
           background-color: #0062cc;
         }
-
         .links {
           display: flex;
           justify-content: center;
           margin-top: 20px;
         }
-
-        .links a {
-          color: #3498db;
-          text-decoration: none;
-          margin: 0 10px;
+        .btn {
+          border: none;
         }
-
-        .links a:hover {
-          text-decoration: underline;
-        }
-
         .error-text{
           color:red;
-          display: none;
         }
+
     </style>
     <script>
-      $(function(){
-        //로드시점
-        const id = $('#id').val();
-        if(id!=''){
-          console.log(id);
-          $('.error-text').show().text('id나 password 둘 중 하나가 맞지 않습니다');
-        }
-      })
-
       function validInput(){
         let idInput = $('#id').val();
         let passwordInput = $('#password').val();
@@ -121,13 +102,19 @@
           return false;
         }
       }
+      
+      function findId(){
+        let findUrl = window.location.href.replace(/\/[^\/]*$/, '/member/findId');
+        window.open(findUrl, '비밀번호 찾기', 'width=500,height=500');
+      }
+      
     </script>
 </head>
 <body>
     <div layout:fragment="content">
         <!-- content script -->
         <div class="login-container">
-            <form action="memberLogin" method="post" class="login-form" onsubmit="return validInput()">
+            <form th:action="@{/member/login}" method="post" class="login-form" onsubmit="return validInput()">
                 <h2>로그인</h2>
                 <div class="form-group login-group">
                     <label for="id">ID</label>
@@ -137,14 +124,19 @@
                     <label for="password">PW</label>
                     <input type="password" id="password" name="password">
                 </div>
-                <p class="error-text"></p>
+                <p th:if=${param.error} class="text-danger">
+                    id나 password가 맞지 않습니다.
+                </p>
+                <p class="error-text" style="display:none;">
+
+                </p>
                 <div class="form-group">
                     <button type="submit">로그인</button>
                 </div>
             </form>
             <div class="links">
-              <a href="registerForm">회원가입</a>
-              <a href="findID">아이디/비밀번호 찾기</a>
+                <a th:href="@{member/registerForm}" class="btn text-primary">회원가입</a>
+                <button id="findId" class="btn text-primary" onclick="findId">아이디/비밀번호 찾기</button>
             </div>
         </div>
 

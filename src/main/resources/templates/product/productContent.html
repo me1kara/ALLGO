@@ -123,10 +123,33 @@ input {
     </style>
     <script>
         function checkAmountArea(input) {
-            if (input.value > input.max) {
-                input.value = input.max;
+            let data = Number(input.value);
+            let max = Number(input.max);
+            let min = Number(input.min);
+            if (data > max) {
+                input.value = max;
+            }else if(data < min){
+                input.value = min;
             }
+
         }
+        function keepItem(){
+            let count = $('#select-productCount').val();
+            $.ajax({
+                url: '/keepProduct',
+                method : 'post',
+                async : true,
+                data : {product_no: '${product.product_no}',
+                        product_count : count
+                        },
+                success : function(response){
+                    alert(response);
+                },error : function(response){
+                    alert(response);
+                }
+            })
+        }
+
     </script>
 </head>
 <body>
@@ -151,14 +174,15 @@ input {
             <!-- 리뷰 목록을 나열하는 코드 -->
           </div>
         </div>
-        <div class="buy_product">
+        <form class="buy_product" action="/buyProduct" method="get">
+            <input type="hidden" id="fproduct" name="fproduct_no" th:value="${product.product_no}">
             <div class="product-options">
-                <label for="quantity">수량</label>
-                <input type="number" min=1 th:max="${product.amount}" id="quantity" oninput="checkAmountArea(this)" />
+                <label for="select-productCount">수량</label>
+                <input type="number" id="select-productCount" name="select-productCount" min=1 th:max="${product.amount}" oninput="checkAmountArea(this)" />
             </div>
-            <button class="add-to-cart">장바구니에 담기</button>
-            <button class="buy">구매하기</button>
-        </div>
+            <button type="button" class="add-to-cart" onclick="keepItem()">장바구니에 담기</button>
+            <input type="submit" class="buy" value="구매하기">
+        </form>
       </main>
       
 </div>

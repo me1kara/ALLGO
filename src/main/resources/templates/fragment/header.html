@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>쇼핑몰</title>
@@ -24,12 +24,13 @@
                     </div>
                     <div class="col-md-4 text-right">
                         <ul class="nav justify-content-end">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/memberLogin">로그인</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/mypage">마이페이지</a>
-                            </li>
+                            <th:block sec:authorize="!isAuthenticated()" class="nav-item">
+                                <a class="nav-link text-dark" th:href=@{/member/login}>로그인</a>
+                            </th:block>
+                            <form sec:authorize="isAuthenticated()" th:action="@{/member/logout}"method="post" class="nav-item">
+                                <button class="btn text-dark" type="submit">로그아웃</button>
+                                <a class="btn text-dark" th:href=@{/member/mypage(item=cart)}>마이페이지</a>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -43,19 +44,19 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" id="shopping" href="shopping">쇼핑</a>
+                            <a class="nav-link" id="shopping" th:href=@{/product/shopping}>쇼핑</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="ranking" href="ranking">랭킹</a>
+                            <a class="nav-link" id="ranking" th:href=@{/product/ranking}>랭킹</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="hotDeal" href="hotDeal">핫딜</a>
+                            <a class="nav-link" id="hotDeal" th:href=@{/product/hotDeal}>핫딜</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="used" href="used">중고</a>
+                            <a class="nav-link" id="used" th:href=@{/product/used}>중고</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="question" href="question">물어봐요!</a>
+                            <a class="nav-link" id="question" th:href="@{/help/question}">물어봐요!</a>
                         </li>
 
                     </ul>

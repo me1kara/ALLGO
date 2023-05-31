@@ -1,67 +1,56 @@
 package test.testspring.controller;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import net.nurigo.java_sdk.api.Message;
-import net.nurigo.java_sdk.exceptions.CoolsmsException;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import test.testspring.domain.Member;
-import test.testspring.security.SecurityController;
-import test.testspring.security.SecurityService;
+import test.testspring.domain.Order;
+import test.testspring.domain.Product;
 import test.testspring.service.EmailService;
 import test.testspring.service.MemberService;
+import test.testspring.service.ProductService;
 
-import javax.servlet.http.Cookie;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.html.Option;
-import java.util.HashMap;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Controller
+@RequestMapping("/member")
 public class MemberController {
-
-
-
     private final MemberService memberService;
+    private final ProductService productService;
     @Autowired
-    private SecurityService securityService;
+    PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
 
-    @Value("${coolSmsKey}")
-    private String COOL_KEY;
-    @Value("${coolSmsSecretKey}")
-    private String COOL_SECRETKEY;
-
     //생성자를 통해 bean 주입
     @Autowired
-    public MemberController(MemberService memberService) {
+    public MemberController(MemberService memberService, ProductService productService) {
         this.memberService = memberService;
+        this.productService = productService;
     }
 
-    @GetMapping("memberLogin")
-    public String loginForm(){
-
-        return "login/loginForm";
-    }
-
-    @PostMapping("memberLogin")
-    public String checkMember(Model model, Member member, HttpServletResponse response){
+    @PostMapping("/login")
+    public String checkMember(HttpSession session, Model model, Member member, HttpServletResponse response){
         boolean result = memberService.isValidMember(member);
         //로그인 성공시
         if (result) {
+            session.setAttribute("member", member);
+            System.out.println("로그인 확인용");
+            /*
             String token = securityService.createToken(member.getId(),member.getRole(),(2*1000*60));
             Cookie cookie = new Cookie("jwt", token);
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
+            */
         } else {
             // 로그인 실패 시
             model.addAttribute("id",member.getId());
@@ -71,9 +60,9 @@ public class MemberController {
         return "home";
     }
 
-    @RequestMapping("/login")
+    @GetMapping("/login")
     public String login(){
-        return "login";
+        return "login/loginForm";
     }
 
     @GetMapping("/registerForm")
@@ -86,7 +75,6 @@ public class MemberController {
 
         return "redirect:/";
     }
-
     @GetMapping("/members/new")
     public String createForm(){
         return "members/createMemberForm";
@@ -117,40 +105,21 @@ public class MemberController {
     @PostMapping("/checkPhone")
     @ResponseBody
     public String checkPhone(@RequestParam("phone") String phone){
-        Optional<Member> member = memberService.findOne(phone);
-
-        Random rand  = new Random();
-        String numStr = "";
-        for(int i=0; i<4; i++) {
-            String ran = Integer.toString(rand.nextInt(10));
-            numStr+=ran;
-        }
-
-
-        Message coolsms = new Message(COOL_KEY, COOL_SECRETKEY);
-
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("to", phone); // 수신
-        params.put("from", phone); // 발신
-        params.put("type", "SMS");
-        params.put("text", "인증번호 "+numStr+" 를 입력하세요.");
-        //arams.put("app_version", "test app 2.2"); // application name and version
-
-        try {
-            JSONObject obj = (JSONObject) coolsms.send(params);
-            System.out.println(obj.toString());
-        } catch (CoolsmsException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCode());
-        }
-        return numStr;
+        boolean phoneValid = memberService.findByPhone(phone)
+                .isEmpty();
+        //가입된 유저가 없다면
+        if(phoneValid) {
+            return memberService.sendToPhone(phone);
+        }else return "no";
     }
 
     @PostMapping("/checkEmail")
     @ResponseBody
     public String emailConfirm(@RequestParam String email) throws Exception {
-        String confirm = emailService.sendSimpleMessage(email);
-        return confirm;
+        boolean emailValid = memberService.findByEmail(email).isEmpty();
+        //가입된 유저가 없다면
+        if(emailValid) return emailService.sendSimpleMessage(email);
+        else return "no";
     }
 
     @PostMapping("/joinMember")
@@ -159,6 +128,82 @@ public class MemberController {
         memberService.join(member);
         return "redirect:/joinResult";
     }
+
+    //아이디 패스워드 찾기
+    @PostMapping("/sendToPhone")
+    @ResponseBody
+    public String findByPhone(@RequestParam("phone") String phone){
+        boolean phoneValid = memberService.findByPhone(phone)
+                .isEmpty();
+        //가입된 유저가 있다면
+        if(!phoneValid) {
+            return memberService.sendToPhone(phone);
+        }else return "no";
+    }
+    @PostMapping("/sendToEmail")
+    @ResponseBody
+    public String findByEmail(@RequestParam String email) throws Exception {
+        boolean emailValid = memberService.findByEmail(email).isEmpty();
+        //가입된 유저가 있다면
+        if(!emailValid) return emailService.sendSimpleMessage(email);
+        else return "no";
+    }
+    @GetMapping("/findId")
+    public String findPw() throws Exception {
+        return "login/findId";
+    }
+    @PostMapping("/findAndSet")
+    public String findIdByEmail(HttpServletRequest request, Model model) throws Exception {
+        String emailParam = request.getParameter("email");
+        String phoneParam = request.getParameter("phone");
+        if(emailParam != null) {
+            memberService.findByEmail(emailParam)
+                    .ifPresent(member -> model.addAttribute("id", member.getId()));
+        } else if(phoneParam != null) {
+            memberService.findByPhone(phoneParam)
+                    .ifPresent(member -> model.addAttribute("id", member.getId()));
+        } else {
+            throw new IllegalArgumentException("이메일, 휴대폰 번호 둘다 주어지지 않았습니다.");
+        }
+
+        return "login/findAndSet";
+    }
+
+    @PostMapping("/setId")
+    @ResponseBody
+    public String setId(@RequestParam("password") String password
+                       ,@RequestParam("id") String id){
+        memberService.modifyPw(id,password);
+        return "ok";
+    }
+
+    @GetMapping("/mypage")
+    public String mypage(HttpSession session,Model model, @RequestParam("item") String item){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        switch(item){
+            case "cart" :
+                List<Product> cartList =  productService.getCartList(id);
+                model.addAttribute("myCart", cartList);
+                break;
+            case "orderList" :
+                List<Order> orderList = productService.getOrderList(id);
+                model.addAttribute("orderList", orderList);
+
+                break;
+            case "paymentList" :
+
+                break;
+            case "myInformation":
+                break;
+            default: break;
+        }
+
+        return "/members/mypage";
+    }
+
 
 
 

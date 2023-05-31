@@ -1,5 +1,6 @@
 package test.testspring.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product_category")
@@ -25,8 +28,10 @@ public class ProductCategory {
     private int tier;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cate_parent", referencedColumnName = "cate_code", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private ProductCategory cateParent;
+    // 자식 정의
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cateParent")
+    private List<ProductCategory> children = new ArrayList<>();
 
 }
 

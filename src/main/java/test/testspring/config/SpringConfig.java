@@ -10,13 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
-import test.testspring.repository.JpaMemberRepository;
-import test.testspring.repository.MemberRepository;
-import test.testspring.security.SecurityService;
-import test.testspring.service.MemberService;
 
-import javax.persistence.EntityManager;
 import java.util.Properties;
 
 
@@ -90,6 +84,12 @@ public class SpringConfig {
         pt.put("mail.smtp.socketFactory.fallback",fallback);
         pt.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         return pt;
+    }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 

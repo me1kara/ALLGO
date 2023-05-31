@@ -1,43 +1,57 @@
 package test.testspring.service;
 
 
-import net.bytebuddy.implementation.bytecode.Throw;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import test.testspring.DTO.SearchDTO;
+import test.testspring.domain.Order;
 import test.testspring.domain.Product;
+import test.testspring.domain.ProductCategory;
+import test.testspring.repository.CategoryRepository;
+import test.testspring.repository.OrderRepository;
 import test.testspring.repository.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final CategoryRepository categoryRepository;
     @Autowired
-    public ProductService(ProductRepository productRepository){
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository, CategoryRepository categoryRepository){
         this.productRepository = productRepository;
+        this.orderRepository = orderRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public Page<Product> getAllProduct(Pageable pageRequest, SearchDTO search){
         String type = search.getSearchType();
+        Long categoryId = search.getCategoryId();
         Page<Product> allProduct;
+        log.info("info log={}",categoryId,type);
         if (type == null) {
-            allProduct=productRepository.findAll(pageRequest);
-
-
+            if(categoryId != null){
+                allProduct=productRepository.findAllByCategoryId(categoryId, pageRequest);
+            }else {
+                allProduct=productRepository.findAll(pageRequest);
+            }
         } else {
             switch (type) {
                 case "title":
-                    allProduct = productRepository.findByTitleContaining(search.getKeyword(), pageRequest);
+                    allProduct = productRepository.findByTitleContaining(search, pageRequest);
                     break;
                 case "titleOrContent":
-                    allProduct = productRepository.findByTitleOrContentContaining(search.getKeyword(), pageRequest);
+                    allProduct = productRepository.findByTitleOrContentContaining(search, pageRequest);
                     break;
                 case "writer":
-                    allProduct = productRepository.findByWriterContaining(search.getKeyword(), pageRequest);
+                    allProduct = productRepository.findByWriterContaining(search, pageRequest);
                     break;
                 default:
                     allProduct = productRepository.findAll(pageRequest);
@@ -58,13 +72,13 @@ public class ProductService {
         } else {
             switch (type) {
                 case "title":
-                    hotProducts = productRepository.findByTitleContaining(search.getKeyword(), pageRequest);
+                    hotProducts = productRepository.findByTitleContaining(search, pageRequest);
                     break;
                 case "titleOrContent":
-                    hotProducts = productRepository.findByTitleOrContentContaining(search.getKeyword(), pageRequest);
+                    hotProducts = productRepository.findByTitleOrContentContaining(search, pageRequest);
                     break;
                 case "writer":
-                    hotProducts = productRepository.findByWriterContaining(search.getKeyword(), pageRequest);
+                    hotProducts = productRepository.findByWriterContaining(search, pageRequest);
                     break;
                 default:
                     hotProducts = productRepository.findAll(pageRequest);
@@ -81,13 +95,13 @@ public class ProductService {
         } else {
             switch (type) {
                 case "title":
-                    usedProducts = productRepository.findByTitleContaining(search.getKeyword(), pageRequest);
+                    usedProducts = productRepository.findByTitleContaining(search, pageRequest);
                     break;
                 case "titleOrContent":
-                    usedProducts = productRepository.findByTitleOrContentContaining(search.getKeyword(), pageRequest);
+                    usedProducts = productRepository.findByTitleOrContentContaining(search, pageRequest);
                     break;
                 case "writer":
-                    usedProducts = productRepository.findByWriterContaining(search.getKeyword(), pageRequest);
+                    usedProducts = productRepository.findByWriterContaining(search, pageRequest);
                     break;
                 default:
                     usedProducts = productRepository.findAll(pageRequest);
@@ -97,9 +111,20 @@ public class ProductService {
         return usedProducts;
     }
 
-    public Product getProductContent(Long productNo) {
+    public Product getProductByNo(Long productNo) {
         Optional<Product> product = productRepository.findById(productNo);
         return product.get();
     }
 
+    public List<Product> getCartList(String mid){
+        return productRepository.getCartList(mid);
+    }
+
+    public List<Order> getOrderList(String id) {
+        return orderRepository.findAllbyIdTo2Week(id);
+    }
+
+    public List<ProductCategory> getCateCode() {
+        return categoryRepository.findAll();
+    }
 }

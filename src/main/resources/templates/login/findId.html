@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>비밀번호 찾기</title>
+
+    <script>
+       let error_text;
+
+       function verifyPhone() {
+         const phoneNumber = document.getElementById("inputText").value;
+         $.ajax({
+                 url: "/sendToPhone",
+                 type: "POST",
+                 data: {'phone': phoneNumber},
+                 success: function(response) {
+                     if(response!='no'){
+                     $('#invalid-text').text('');
+                     document.querySelector('#codeBtn').addEventListener('click',function(){
+                         let code = $('#code').val();
+                         if(response==code){
+                            postToUrl('findAndSet', {'phone':phoneNumber}, 'post');
+                         }else error_text.text('일치하지 않습니다.');
+                     })          
+                    }else{
+                        $('#invalid-text').text('등록된 이메일이 없습니다');
+                    }
+                 },
+                 error: function() {
+                     error_text.text("유효하지 않은 번호입니다!");
+                 }
+             });
+       }
+       function verifyEmail() {
+       const email = document.getElementById("inputText").value;
+       $.ajax({
+                 url: "/sendToEmail",
+                 type: "POST",
+                 data: {'email': email},
+                 success: function(response) {
+                     if(response!='no'){
+                        $('#invalid-text').text('');
+                        document.querySelector('#codeBtn').addEventListener('click',function(){
+                            let code = $('#code').val();
+                            if(response==code){
+                            postToUrl('findAndSet', {'email':email}, 'post');
+                            }else error_text.text('일치하지 않습니다.');
+                        })
+                     }else {
+                        $('#invalid-text').text('등록된 이메일이 없습니다');
+                     }
+  
+                 },
+                 error: function() {
+                   error_text.text("유효하지 않은 번호입니다!");
+                 }
+             });
+       }
+       function verify(){
+         let radios = document.getElementsByName('findMethod');
+         let radioVal;
+         for (let i = 0; i < radios.length; i++) {
+           if (radios[i].checked) {
+             radioVal = radios[i].value.trim();
+             break;
+           }
+         }
+         error_text = $('#error-text');
+         if (radioVal == 'email') {
+             verifyEmail();
+         } else if (radioVal == 'phone') {
+             verifyPhone();
+         }
+       }
+       function postToUrl(path, params, method) {
+            method = method || "post"; // default method는 post
+            const form = document.createElement("form");
+            form.method = method;
+            form.action = path;
+
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    const hiddenField = document.createElement("input");
+                    hiddenField.type = "hidden";
+                    hiddenField.name = key;
+                    hiddenField.value = params[key];
+
+                    form.appendChild(hiddenField);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+    </script>
+</head>
+<body>
+    <form class="container-sm">
+        <div class="popHeader">
+            <h5 class="modal-title">비밀번호 찾기</h5>
+        </div>
+        <div class="popBody">
+            <p>이메일 또는 휴대폰 번호를 입력하세요.</p>
+            <div class="form-check form-check-inline mb-3">
+                <input type="radio" class="form-check-input" id="radioEmail" name="findMethod" value="email" checked>
+                <span class="form-check-label">이메일로 찾기</span>
+            </div>
+            <div class="form-check form-check-inline mb-3">
+                <input type="radio" class="form-check-input" id="radioPhone" name="findMethod" value="phone">
+                <span class="form-check-inline">휴대폰번호로 찾기</span>
+            </div>
+            <div id="invalid-text" class="text-danger"></div>
+            <div class="mb-3 input-group">
+                <input type="text" class="form-control" id="inputText" aria-describedby="idHelp">
+                <div class="input-group-append"><button type="button" class="btn btn-primary" value="아이디찾기" onclick="verify()">확인</button>
+                </div>
+            </div>
+        </div>
+        <div class="popFooter">
+            <span>인증코드</span>
+            <div class="input-group">
+                <input type="text" class="form-control" id="code">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-primary" id="codeBtn">확인</button>
+                </div>
+            </div>
+            <div id="error-text" class="text-danger"></div>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>
