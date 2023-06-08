@@ -38,6 +38,12 @@ public class MemberController {
         this.productService = productService;
     }
 
+
+    //로그인시
+    @GetMapping("/login")
+    public String login(){
+        return "login/loginForm";
+    }
     @PostMapping("/login")
     public String checkMember(HttpSession session, Model model, Member member, HttpServletResponse response){
         boolean result = memberService.isValidMember(member);
@@ -60,11 +66,7 @@ public class MemberController {
         return "home";
     }
 
-    @GetMapping("/login")
-    public String login(){
-        return "login/loginForm";
-    }
-
+    //회원가입
     @GetMapping("/registerForm")
     public String registerForm(){
         return "login/registerForm";
@@ -75,25 +77,25 @@ public class MemberController {
 
         return "redirect:/";
     }
-    @GetMapping("/members/new")
-    public String createForm(){
-        return "members/createMemberForm";
-    }
-    @PostMapping("/members/new")
-    public String create(Member form){
-        memberService.join(form);
-        return "redirect:/";
-    }
+//    @GetMapping("/member/new")
+//    public String createForm(){
+//        return "members/createMemberForm";
+//    }
+//    @PostMapping("/new")
+//    public String create(Member form){
+//        memberService.join(form);
+//        return "redirect:/";
+//    }
 
-    @GetMapping("/members")
-    public String list(Model model){
-        List<Member> members = memberService.findMembers();
-        model.addAttribute("members",members);
-        return "members/memberList";
-    }
+//    @GetMapping("")
+//    public String list(Model model){
+//        List<Member> members = memberService.findMembers();
+//        model.addAttribute("members",members);
+//        return "members/memberList";
+//    }
 
-    @GetMapping("/members/findId")
-    public String findMember(){return "memebers/findMember";}
+//    @GetMapping("/findId")
+//    public String findMember(){return "member/findId";}
 
     @PostMapping("/checkId")
     @ResponseBody
@@ -122,12 +124,12 @@ public class MemberController {
         else return "no";
     }
 
-    @PostMapping("/joinMember")
-    public String joinMember(Member member, @RequestParam String addressDetail){
-        member.setAddress(member.getAddress()+addressDetail);
-        memberService.join(member);
-        return "redirect:/joinResult";
-    }
+//    @PostMapping("/joinMember")
+//    public String joinMember(Member member, @RequestParam String addressDetail){
+//        member.setAddress(member.getAddress()+addressDetail);
+//        memberService.join(member);
+//        return "redirect:/joinResult";
+//    }
 
     //아이디 패스워드 찾기
     @PostMapping("/sendToPhone")
@@ -177,7 +179,7 @@ public class MemberController {
         return "ok";
     }
 
-    @GetMapping("/mypage")
+    @GetMapping("/myPage")
     public String mypage(HttpSession session,Model model, @RequestParam("item") String item){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -201,7 +203,8 @@ public class MemberController {
             default: break;
         }
 
-        return "/members/mypage";
+        System.out.println("확인용마이페이지");
+        return "member/mypage";
     }
 
 

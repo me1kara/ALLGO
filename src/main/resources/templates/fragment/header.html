@@ -29,7 +29,7 @@
                             </th:block>
                             <form sec:authorize="isAuthenticated()" th:action="@{/member/logout}"method="post" class="nav-item">
                                 <button class="btn text-dark" type="submit">로그아웃</button>
-                                <a class="btn text-dark" th:href=@{/member/mypage(item=cart)}>마이페이지</a>
+                                <a class="btn text-dark" th:href=@{/member/myPage(item=cart)}>마이페이지</a>
                             </form>
                         </ul>
                     </div>

@@ -51,7 +51,7 @@
             margin-bottom: 5px;
         }
         
-        .cate-sub li a {
+        .cate-sub li a, .ld {
             color: #333;
             text-decoration: none;
         }
@@ -72,7 +72,9 @@
         $(document).ready(function(){
             let cateList = [[${cateJson}]];
             const cteL = document.getElementById('categoryList');
-            console.log(cateList);
+            let allEl = document.createElement('div');
+            allEl.innerHTML = '<div class="cate_warp"><span><a href="/product/shopping" class="ld">ALL</a></span></div>';
+            cteL.appendChild(allEl);
             for (let i = 0; i < cateList.length; i++) {
                 if(cateList[i].tier=='1'){
                     let div = document.createElement('div');
@@ -80,6 +82,7 @@
                     temp+='<div class="cate_warp">';
                     temp+='<span onclick="showSub(this);">'+cateList[i].categoryName+'</span>';
                     temp+='<ul class="cate-sub">';
+                    temp+='<li><a href="/product/shopping?categoryId='+cateList[i].categoryId+'"> ALL</a></li>';
                     cateList[i].children.forEach(element => {
                         temp += '<li><a href="/product/shopping?categoryId=' + element.categoryId + '">' + element.categoryName + '</a></li>';
                     });
@@ -97,7 +100,6 @@
 <main layout:fragment="content" style="padding-top:50px;">
 
     <div id="categoryList" style="display: flex;">
-
     </div>
 
     <div th:if="${products}">

@@ -18,10 +18,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @Column(name = "seller_id")
     private String seller_id;
-
     @Column(name = "buyer_id")
     private String buyer_id;
 

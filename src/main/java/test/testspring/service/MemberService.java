@@ -130,4 +130,8 @@ public class MemberService implements UserDetailsService {
         Assert.assertEquals(encodePassword,member.getPassword());
 
     }
+
+    public Member findById(String id) {
+        return memberRepository.findById(id).orElse(Member.builder().build());
+    }
 }

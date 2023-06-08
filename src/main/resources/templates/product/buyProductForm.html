@@ -97,51 +97,54 @@ button:hover {
     </style>
     <script>
       function payment(){
-            var IMP = window.IMP; 
+            var IMP = window.IMP;
+            let pname = $('#product-name').text();
+            
 			IMP.init("imp07716558"); 
 		    IMP.request_pay({
 		        pg : 'html5_inicis.INIpayTest',
 		        pay_method : 'card',
 		        merchant_uid: 'merchant_'+new Date().getTime(), 
-		        name : '시터예약',
+		        name : pname,
 		        amount : '100', //${book.res_pay},테스트용으로 100원 고정
-		        buyer_email : '<%=user.getUser_email()%>',
-		        buyer_name : '<%=user.getUser_name()%>',
-		        buyer_tel : '<%=user.getUser_phone()%>',
-		        buyer_addr : '<%=user.getUser_addr()%>',
-		        buyer_postcode : <%=user.getUser_no() %>
+		        // buyer_email : '<%=user.getUser_email()%>',
+		        // buyer_name : '<%=user.getUser_name()%>',
+		        // buyer_tel : '<%=user.getUser_phone()%>',
+		        // buyer_addr : '<%=user.getUser_addr()%>',
+		        // buyer_postcode : <%=user.getUser_no() %>
 		    }, function (rsp) { // callback
 		    	
 		    	//결제성공시
 		        if (rsp.success) {
+
 		        	
 		        	//백단에 내용전달
 					$.ajax({
-						url : 'ajax/payment.do',
-						type : 'POST',
-			            //dataType: 'json',
-			            contentType: 'application/json; charset=utf-8',
-						data : JSON.stringify(rsp),
-						success : function(result) {
-							console.log(result);
+						// url : 'ajax/payment.do',
+						// type : 'POST',
+			      //       //dataType: 'json',
+			      //       contentType: 'application/json; charset=utf-8',
+						// data : JSON.stringify(rsp),
+						// success : function(result) {
+						// 	console.log(result);
 							
-							//백단에 성공적으로 들어갔을시
-							//실패시 자동환불(백단에서)
-							let process_result = result.process_result.split(":");
- 							if(process_result[0]=='결제성공'){
-								alert('결제성공!');
+						// 	//백단에 성공적으로 들어갔을시
+						// 	//실패시 자동환불(백단에서)
+						// 	let process_result = result.process_result.split(":");
+ 						// 	if(process_result[0]=='결제성공'){
+						// 		alert('결제성공!');
 								
-								//성공시 완료페이지로 이동
-								let alink = '/requestBook.do?sit_no='+${sitter.sit_no }+'&merchant_uid='+process_result[1]+"";
-								console.log(alink);
-								window.location.href = alink;
-							}else{
-								alert(process_result[1]);
-							}
+						// 		//성공시 완료페이지로 이동
+						// 		let alink = '/requestBook.do?sit_no='+${sitter.sit_no }+'&merchant_uid='+process_result[1]+"";
+						// 		console.log(alink);
+						// 		window.location.href = alink;
+						// 	}else{
+						// 		alert(process_result[1]);
+						// 	}
 
-						},error: function(result){
-							alert(result);
-						}
+						// },error: function(result){
+						// 	alert(result);
+						// }
 					});
 		        } else {
 		            alert("결제실패!");
@@ -159,7 +162,7 @@ button:hover {
                         <article>
                               <table>
                                     <thead>상품</thead>
-                                    <tr><td>상품</td><td th:text="${product.product_name}"></td></tr>
+                                    <tr><td>상품</td><td th:text="${product.product_name}" id="product-name"></td></tr>
                                     <tr><td>수량</td><td th:text="${product.amount}">1</td></tr>
                                     <tr><td colspan="2">
                                           <table>
@@ -171,10 +174,15 @@ button:hover {
                                           </table>
                                     </td></tr>
                                     <tr><td>배송지주소</td><td>서울시 노원구 xxx xxx</td></tr>
-                                    <tr><td>카드 </td><td><select name="" id="">
-                                          <option th:each="card : ${cards}" th:text="${card.type + ' ' + #strings.mask(card.card_no, '*', 4, 8)}" th:value="${card.card_id}">카드번호 xxx</option>
-                                    </select></td></tr>
-                                    <tr><td colspan="2"><button onclick="payment()">결제하기</button></td></tr>
+                                    <tr>
+                                      <td>카드</td>
+                                      <td>
+                                        <select name="cardId" id="cardId">
+                                          <option th:each="card : ${cards}" th:text="${card.type + ' ' + #strings.append(#strings.substring(card.no, 0, 4),'****')}" th:value="${card.id}">카드번호 xxx</option>
+                                        </select>
+                                      </td>
+                                    </tr>          
+                                    <tr><td colspan="2"><button type="button" onclick="payment()">결제하기</button></td></tr>
                               </table>
 
                         </article>

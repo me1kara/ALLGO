@@ -3,27 +3,27 @@ package test.testspring.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import test.testspring.DTO.CategoryDto;
 import test.testspring.DTO.SearchDTO;
+import test.testspring.domain.Card;
+import test.testspring.domain.Member;
 import test.testspring.domain.Product;
-import test.testspring.domain.ProductCategory;
+import test.testspring.service.MemberService;
 import test.testspring.service.ProductService;
 
-import java.math.BigDecimal;
+import java.security.Security;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 public class ProductController {
     @Autowired
     ProductService productService;
+    @Autowired
+    MemberService memberService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -100,7 +102,15 @@ public class ProductController {
     @GetMapping("/productContent")
     public String showProductContent(@RequestParam(value="product_no") Long product_no, Model model){
         Product product = productService.getProductByNo(product_no);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+
+        productService.addViewCount(product_no);
+        String heart = productService.checkMyFavorite(product_no, id);
         model.addAttribute("product",product);
+        model.addAttribute("heart",heart);
+
         return "product/productContent";
     }
 
@@ -110,11 +120,41 @@ public class ProductController {
                                      Model model
                                      ) {
         Product product = productService.getProductByNo(fproduct_no);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+
+        Member member = memberService.findById(id);
+        List<Card> cards = member.getCards();
         product.setAmount(amount);
         model.addAttribute("product",product);
         model.addAttribute("delivery_price",3000);
+        model.addAttribute("cards",cards);
 
-        return "product/buyProduct";
+        return "product/buyProductForm";
+    }
+
+    @RequestMapping("/favorite")
+    @ResponseBody
+    public String inclementFavorite(@RequestParam("product_no") Long product_no){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        String response = productService.incrementFavoriteProduct(id,product_no);
+        return response;
+    }
+
+
+    @PostMapping("/keepProduct")
+    @ResponseBody
+    public String keepProduct(@RequestParam("product_no") Long product_no,
+                              @RequestParam("product_count") int product_count){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String keeperId = authentication.getName();
+        log.info("save product {}", "");
+
+        return productService.keepProduct(keeperId,product_no,product_count);
     }
 
 
