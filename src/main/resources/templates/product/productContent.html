@@ -220,7 +220,7 @@ input {
         </div>
         <div class="product-review">
           <div class="product-reply-modal">
-            리뷰갯수
+            리뷰
           </div>
           <div class="product-reply-list" style="display: none;">
             <!-- 리뷰 목록을 나열하는 코드 -->
@@ -230,7 +230,7 @@ input {
             <input type="hidden" id="fproduct" name="fproduct_no" th:value="${product.product_no}">
             <div class="product-options">
                 <label for="select-productCount">수량</label>
-                <input type="number" id="select-productCount" name="select-productCount" min=1 th:max="${product.amount}" oninput="checkAmountArea(this)" required/>
+                <input type="number" id="select-productCount" name="select-productCount" min=1 th:max="${product.amount}" oninput="checkAmountArea(this)" value="1" required/>
             </div>
             <button type="button" class="add-to-cart" onclick="keepItem()">장바구니에 담기</button>
             <input type="submit" class="buy" value="구매하기">

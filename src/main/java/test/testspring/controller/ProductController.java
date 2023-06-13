@@ -60,9 +60,6 @@ public class ProductController {
         Page<Product> pages = productService.getAllProduct(pageRequest, search);
         model.addAttribute("products",pages);
 
-        log.info("info text={}",pages.isEmpty());
-
-
         List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);

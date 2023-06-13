@@ -48,6 +48,7 @@ public class ProductService {
                     allProduct = productRepository.findByTitleContaining(search, pageRequest);
                     break;
                 case "titleOrContent":
+                    log.info("{}",search.getKeyword());
                     allProduct = productRepository.findByTitleOrContentContaining(search, pageRequest);
                     break;
                 case "writer":

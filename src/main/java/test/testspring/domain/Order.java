@@ -1,5 +1,6 @@
 package test.testspring.domain;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,17 +13,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Column(name="imp_uid")
+    private String imp_uid;
+    @Column(name="merchant_uid")
+    private String merchant_uid;
     @Column(name = "seller_id")
     private String seller_id;
     @Column(name = "buyer_id")
     private String buyer_id;
-
     @Column(name = "product_no")
     private Long product_no;
 
