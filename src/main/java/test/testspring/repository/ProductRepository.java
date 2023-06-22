@@ -17,13 +17,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    @Query("select p from Product p join p.productCategory pc where pc.cateCode = :#{#search.categoryId} and (p.product_name like %:#{#search.keyword}%)")
+    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and p.product_name like %:#{#search.keyword}%")
+    Page<Product> findByTitleContainingWithCategoryId(@Param("search") SearchDTO searchDTO, Pageable pageable);
+    @Query("select p from Product p left join p.productCategory pc where p.product_name like %:#{#search.keyword}%")
     Page<Product> findByTitleContaining(@Param("search") SearchDTO searchDTO, Pageable pageable);
 
-    @Query("select p from Product p join p.productCategory pc where pc.cateCode = :#{#search.categoryId} and (p.product_name like %:#{#search.keyword}% or p.product_content like %:#{#search.keyword}%)")
+    @Query("select p from Product p left join p.productCategory pc where p.product_name like %:#{#search.keyword}% or p.product_content like %:#{#search.keyword}%")
     Page<Product> findByTitleOrContentContaining(@Param("search") SearchDTO search, Pageable pageable);
+    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and (p.product_name like %:#{#search.keyword}% or p.product_content like %:#{#search.keyword}%)")
+    Page<Product> findByTitleOrContentContainingWithCategoryId(@Param("search") SearchDTO search, Pageable pageable);
 
-    @Query("select p from Product p join p.productCategory pc where pc.cateCode = :#{#search.categoryId} and p.seller_id like %:#{#search.keyword}%")
+    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and p.seller_id like %:#{#search.keyword}%")
+    Page<Product> findByWriterContainingWithCategoryId(@Param("search") SearchDTO search, Pageable pageable);
+
+    @Query("select p from Product p left join p.productCategory pc where p.seller_id like %:#{#search.keyword}%")
     Page<Product> findByWriterContaining(@Param("search") SearchDTO search, Pageable pageable);
 
     @Query("select p from Product p join p.productCategory pc where pc.cateCode = :categoryId or pc.cateParent.cateCode = : categoryId")

@@ -1,5 +1,6 @@
 package test.testspring.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,5 +37,6 @@ public class Card {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", insertable = false, updatable = false)
+    @JsonIgnore
     private Member member;
 }

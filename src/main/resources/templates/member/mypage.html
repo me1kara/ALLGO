@@ -10,8 +10,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>  
     <title>올고</title>
-    <style>
 
+    <script th:inline="javascript">
+        $(document).ready(function(){
+          
+        })
+    </script>
+    <style>
     /* item-list 섹션 */
 #item-list {
   background-color: #F4F6F8;
@@ -245,10 +250,10 @@ td {
             <section id="item-list">
                   <ul>
                         <!-- 클릭시 해당 목록 오른쪽에 나열 -->
-                        <li><a th:href="@{/member/myPage?item=cart}">장바구니</a></li>
-                        <li><a th:href="@{/member/myPage?item=orderList}">주문조회</a></li>
-                        <li><a th:href="@{/member/myPage?item=paymentList}">결제내역</a></li>
-                        <li><a th:href="@{/member/myPage?item=myInformation}">내정보관리</a></li>
+                        <li><a th:href="@{/member/myPage?item=cart}" id="cart">장바구니</a></li>
+                        <li><a th:href="@{/member/myPage?item=orderList}" id="orderList">주문조회</a></li>
+                        <li><a th:href="@{/member/myPage?item=paymentList}" id="paymentList">결제내역</a></li>
+                        <li><a th:href="@{/member/myPage?item=myInformation}" id="myInformation">내정보관리</a></li>
                   </ul>
             </section>
             <section id="item-content">
@@ -272,7 +277,7 @@ td {
                             <tbody th:if="${!myCart.isEmpty()}">
                                 <tr class="cart_list_detail" th:each="product:${myCart}">
                                     <td><input type="checkbox"></td>
-                                    <td><img src="image/keyboard.jpg" alt="magic keyboard"></td>
+                                    <td><img id="imgId" th:src="@{/img/웻푸드.jpg}" alt="첨부이미지" width="60px" height="60px"/></td>
                                     <td>
                                         <p th:text="${product.product_name}">Apple 매직 키보드 - 한국어(MK2A3KH/A)</p>
                                         <sapn class="price" th:text="${product.price*(1-product.discount_rate) + '원' }">116,62원</sapn><span

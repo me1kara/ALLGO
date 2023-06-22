@@ -27,7 +27,6 @@ public class Member {
     private String phone;
     @Nullable
     private boolean agreed_terms;
-
     @Nullable
     private boolean enabled;
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -53,5 +52,19 @@ public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Date created_at;
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", agreed_terms=" + agreed_terms +
+                ", enabled=" + enabled +
+                ", created_at=" + created_at +
+                '}';
+    }
 
 }

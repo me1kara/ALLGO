@@ -63,6 +63,9 @@ dependencies {
 	//iamPort rest
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.22'
 
+	// Jackson JSR310 모듈 추가
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 
 
 

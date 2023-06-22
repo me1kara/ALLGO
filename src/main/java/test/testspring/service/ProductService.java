@@ -45,14 +45,26 @@ public class ProductService {
         } else {
             switch (type) {
                 case "title":
-                    allProduct = productRepository.findByTitleContaining(search, pageRequest);
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByTitleContainingWithCategoryId(search, pageRequest);
+                    }else{
+                        allProduct = productRepository.findByTitleContaining(search, pageRequest);
+                    }
                     break;
                 case "titleOrContent":
                     log.info("{}",search.getKeyword());
-                    allProduct = productRepository.findByTitleOrContentContaining(search, pageRequest);
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByTitleOrContentContainingWithCategoryId(search, pageRequest);
+                    }else {
+                        allProduct = productRepository.findByTitleOrContentContaining(search, pageRequest);
+                    }
                     break;
                 case "writer":
-                    allProduct = productRepository.findByWriterContaining(search, pageRequest);
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByWriterContainingWithCategoryId(search, pageRequest);
+                    } else{
+                        allProduct = productRepository.findByWriterContaining(search, pageRequest);
+                    }
                     break;
                 default:
                     allProduct = productRepository.findAll(pageRequest);
@@ -68,7 +80,6 @@ public class ProductService {
         Page<Product> hotProducts;
         if (type == null) {
             hotProducts=productRepository.findAll(pageRequest);
-
 
         } else {
             switch (type) {
