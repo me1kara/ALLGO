@@ -27,10 +27,8 @@ public class HelpComment {
 
     @Column(name = "member_id", nullable = false)
     private String memberId;
-
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
+    private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name = "parent_comment_id")
     private Long parentCommentId;
 

@@ -11,6 +11,7 @@ import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.HelpBoard;
 import test.testspring.domain.HelpComment;
 import test.testspring.domain.Product;
+import test.testspring.repository.HelpCommentRepository;
 import test.testspring.repository.HelpRepository;
 
 import javax.transaction.Transactional;
@@ -23,8 +24,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HelpService {
     private HelpRepository helpRepository;
+    private HelpCommentRepository helpCommentRepository;
     @Autowired
-    public HelpService(HelpRepository helpRepository) {
+    public HelpService(HelpRepository helpRepository, HelpCommentRepository helpCommentRepository) {
+        this.helpCommentRepository = helpCommentRepository;
         this.helpRepository = helpRepository;
     }
 
@@ -66,4 +69,7 @@ public class HelpService {
         return helpBoard;
     }
 
+    public void addComment(HelpComment comment) {
+        helpCommentRepository.save(comment);
+    }
 }

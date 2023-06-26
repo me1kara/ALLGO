@@ -11,15 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import test.testspring.DTO.CategoryDto;
 import test.testspring.DTO.HelpBoardDTO;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.HelpBoard;
+import test.testspring.domain.HelpComment;
 import test.testspring.domain.HelpImg;
 import test.testspring.domain.Product;
 import test.testspring.service.HelpService;
@@ -56,7 +57,8 @@ public class HelpController {
     }
 
     @GetMapping("/questionContent")
-    public String viewQuestionContent(Model model, Long id) throws JsonProcessingException {
+    public String viewQuestionContent(Model model, Long id,
+                                      @RequestParam(value = "top", required = false) Double top) throws JsonProcessingException {
         HelpBoard helpBoard = helpService.viewQuestionContent(id);
         HelpBoardDTO hd = new HelpBoardDTO(helpBoard);
 
@@ -64,11 +66,23 @@ public class HelpController {
         mapper.registerModule(new JavaTimeModule());
         String jsonInString = mapper.writeValueAsString(hd);
         model.addAttribute("help",jsonInString);
-        System.out.println(jsonInString);
+        model.addAttribute("top",top);
 
         return "/help/questionContent";
 
     }
+
+    @PostMapping("/addComment")
+    public String addComment(Model model,
+                             HelpComment comment,
+                             @RequestParam("position") double position) throws JsonProcessingException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String writerId = authentication.getName();
+        comment.setMemberId(writerId);
+        helpService.addComment(comment);
+        return "redirect:/help/questionContent?id=" + comment.getBoardId() +"&top="+position;
+    }
+
 
 
 }

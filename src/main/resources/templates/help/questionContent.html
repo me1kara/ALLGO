@@ -6,6 +6,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta name="_csrf" th:content="${_csrf.token}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -18,20 +20,30 @@
                 setBoard(help);
                 let comments = help.comments;
                 commentsDIV = $('#comments');
-                
                 comments.forEach(comment => {
                     addChildComment(comment, commentsDIV);
                 });
+                let y = [[${top}]];
+                if (top !== '' && top !== null) {
+                  window.scrollTo({top:y, left:200,behavior:"instant"});
+                }
             });
+            function xy(){
+              let top = document.documentElement.scrollTop;
+              $('#position').val(top);
+            }
             function addChildComment(comment, parentElement) {
-
                 let depth = comment.depth;
                 let commentDIV = $('<div></div>').addClass('comment row');
                 let writer = $('<div></div>').addClass('writer col-md-1').text(comment.member.name);
-                let commentText = $('<div></div>').addClass('content col-md-9').text(comment.content);
+                let commentText = $('<div></div>').data({
+                  'boardId':comment.boardId,
+                  'commentId': comment.id,
+                  'depth': depth
+                }).addClass('content col-md-9').text(comment.content);
                 let cat = comment.createdAt+"";
                 if(depth=='1'){
-                    commentDIV.css('margin','0 auto');
+                    commentDIV.css('margin','0 auto').addClass('firstDepthComment');
                 }
 
                 let commentAt = $('<div></div>').addClass('created_at col-md-2 text-end').text(cat.replaceAll(/,/g, ':'));
@@ -53,25 +65,76 @@
                 $('#board_title').text(help.title);
                 $('#board_writer').text(help.member.name);
                 $('#board_content').text(help.content);
+                $('#boardId').val(help.id);
+
             }
 
-            function xy(){
-              var commentInsert = $('#comment_insert');
-              var commentInput = $('#comment_input');
-              var commentTopPosition = commentInsert.position().top;
+            $(document).on('click', '.comment .content', function() {
+            // 현재 댓글의 대댓글 폼 요소를 가져옵니다.
+            let replyForm = $(this).siblings('.comment-reply-wrapper');
+                // 다른 댓글의 대댓글 폼을 숨깁니다.
+            $('.comment-reply-wrapper').not(replyForm).slideUp();
 
-              // 댓글 입력 전 원래 위치의 top 값을 저장
-              originalTopPosition = commentTopPosition;
-
-              // 댓글 입력 후 재조정
-              adjustOverflow();
-
-              // 입력 후 원래 위치로 돌아오는 애니메이션 설정
-              commentInsert.animate({ top: originalTopPosition }, 300);
-
-              // 폼 전송 방지
-              return false;
+            // 대댓글 폼이 이미 존재하는 경우 토글하여 보이거나 감춥니다.
+            if (replyForm.length > 0) {
+              replyForm.slideToggle();
             }
+            // 대댓글 폼이 존재하지 않는 경우 생성하여 추가합니다.
+            else {
+              // 대댓글 폼을 생성합니다.
+              let url = /*[[ @{/help/addComment} ]]*/;
+              
+              let csrfToken = $('meta[name="_csrf"]').attr('content');
+              let csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+              let replyWrapper = $('<div></div>').addClass('comment-reply-wrapper text-end').hide();
+              
+              let replyTextArea = $('<textarea></textarea>').attr('name','content').addClass('form-control').attr('rows', 3);
+              let replySubmitBtn = $('<button></button>').attr('type','submit').addClass('btn btn-secondary reply-submit-btn').text('작성');
+              
+              replyWrapper.append(replyTextArea);
+              let position = document.documentElement.scrollTop;
+              
+              // hidden input을 생성하고 값을 설정합니다.
+              let csrfInput = $('<input>').attr('type', 'hidden').attr('name', csrfHeader).val(csrfToken);
+              let positionInput = $('<input>').attr('type', 'hidden').attr('name', 'position').val(position);
+              let boardIdInput = $('<input>').attr('type', 'hidden').attr('name', 'boardId').val($(this).data('boardId'));
+              let parentCommentInput = $('<input>').attr('type', 'hidden').attr('name','parentCommentId').val($(this).data('commentId'));
+              let depthInput = $('<input>').attr('type', 'hidden').attr('name','depth').val($(this).data('depth')+1);
+
+              // 대댓글 폼에 hidden input을 추가합니다.
+              replyWrapper.append(positionInput, boardIdInput,parentCommentInput, depthInput, replySubmitBtn,csrfInput);
+              
+              // 대댓글 폼을 현재 댓글 바로 아래에 삽입합니다.
+              let secondChild = $(this).closest('.comment').children().eq(2);
+              if (secondChild.length > 0) {
+                secondChild.after(replyWrapper);
+              } else {
+                $(this).closest('.comment').append(replyWrapper);
+              }
+
+              replyWrapper.slideDown();
+              replySubmitBtn.click(function(){
+                  $('#replyForm').append(replyWrapper).submit();
+              })
+            }
+
+
+          });
+          // 대댓글 폼을 클릭했을 때 이벤트 버블링을 막습니다.
+          $(document).on('click', '.comment-reply-wrapper', function(e) {
+            e.stopPropagation();
+          });
+
+          // 다른 곳을 클릭했을 때 대댓글 폼을 숨깁니다.
+          $(document).on('click', function(e) {
+            if (!$(e.target).closest('.comment .content').length) {
+              $('.comment-reply-wrapper').slideUp();
+            }
+          });
+
+
+
     </script>
     <style>
 
@@ -113,6 +176,12 @@
   margin-left: auto;
 }
 
+/* */
+.firstDepthComment{
+  border : 1px solid #ccc;
+  border-radius: 5px;
+}
+
 /* 작성자 스타일 */
 .comment .writer {
   font-size: 14px;
@@ -123,6 +192,7 @@
 /* 내용 스타일 */
 .comment .content {
   margin-bottom: 10px;
+  font-size: 14px;
 }
 
 /* 작성 시간 스타일 */
@@ -148,13 +218,18 @@
   padding: 5px;
 }
 
+/*댓글 버튼*/
+
 .btn {
-  background-color: #ccc;
-  color: #fff;
   border: none;
   padding: 5px 10px;
   cursor: pointer;
 }
+
+.reply-submit-btn{
+  position: relative; top:-50px; right:10px;
+}
+
 @media (min-width: 768px) {
   .container {
     width: 750px;
@@ -185,13 +260,24 @@
         <article id="comments">
 
         </article>
-        <article id="comment_insert" class="input-group">
-          <form th:action="@{/}" onsubmit="return xy();">
-            <input type="hidden" name="area">
-            <textarea name="comment_input" id="comment_input" cols="30" rows="10"></textarea>
-            <button class="btn">입력</button>
+        <article id="comment_insert">
+          <form sec:authorize="isAuthenticated()" th:action="@{/help/addComment}" method="post" onsubmit="return xy();">
+            <input type="hidden" name="position" id="position">
+            <input type="hidden" name="boardId" id="boardId">
+            <input type="hidden" name="depth" value="1">
+            <div class="form-group reply-wrapper">
+              <textarea name="content" id="comment_input form-control" rows="3" required style="width:100%;"></textarea>
+              <div class="reply-submit-wrapper text-end">
+                <button type="submit" class="btn btn-secondary reply-submit-btn" id="reply-submit-btn">작성</button>
+              </div>
+            </div>
           </form>
         </article>
+
+        <form sec:authorize="isAuthenticated()" th:action="@{/help/addComment}" method="post" style="display: hidden;" id="replyForm">
+          
+        </form>
+
         
     </section>
 
