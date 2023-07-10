@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.util.Date;
 
 @Entity
@@ -21,12 +22,14 @@ public class Cart {
     private Long cid;
     @Column(name="mid")
     private String mid;
-    @Column(name="pno")
-    private Long pno;
-    @Column(name="pCount")
+    @Column(name="p_count")
     private int pCount;
     @Column(name="keep_at")
     private Date keep_at;
+    @ManyToOne
+    @JoinColumn(name="pno")
+    private Product product;
+
 
 
 }

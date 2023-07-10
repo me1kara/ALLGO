@@ -8,6 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
     <title>타이틀</title>
     <style>
 
@@ -21,7 +22,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem 1rem;
-  background-color: #f5f5f5;
+  border-bottom: 1px solid #dee2e6;
+
 }
 
 .home-main-desc {
@@ -77,7 +79,7 @@
   text-align: center;
 }
 
-.product-item img {
+.product-item picture {
   max-width: 100%;
   height: auto;
   margin-bottom: 1rem;
@@ -95,8 +97,8 @@
   margin: 0 0 1rem;
 }
 
-.product-item button {
-  background-color: #000;
+.product-item a {
+  background-color: orange;
   color: #fff;
   border: none;
   padding: 1rem;
@@ -113,58 +115,35 @@
        <!-- Banner Section -->
        <div id="home-main-top">
         <div class="home-main-desc">
-          <h1 class="home-main-title">강아지와 함께하는 AIIGO<br></h1>
+          <h1 class="home-main-title">강아지와 함께하는 <span style="color: #57a0e3;">AIIGO</span><br></h1>
           <p class="text-m">
-            애완식품부터 장난감까지 쉽게 구해요.<br>왈왈 컹컹 멍멍!
+            애완식품부터 장난감까지 쉽게 구해요.
           </p>
         </div>
         <div class="home-main-image-top">
-            <img srcset="http://via.placeholder.com/640x480">
+          <picture>
+            <source th:srcset="@{/img/MainImg.webp}" type="image/webp">
+            <source th:srcset="@{/img/MainImg.webp}" type="image/jpeg">
+            <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{/img/MainImg.webp}">
+           </picture>
         </div>
       </div>
        <!-- Product Section -->
        <section class="product-section">
            <div class="product-wrapper">
                 <h2 style="display: inline-block;">인기상품!</h2>
-                <span style="float: right;"><a href="itemlist" style=" color: black; text-decoration: none;">더보기</a></span> 
-                
+                <span style="float: right;"><a th:href="@{/product/ranking}" style=" color: black; text-decoration: none;">더보기</a></span> 
                <div class="product-list">
-                   <div class="product-item">
-                       <img src="http://via.placeholder.com/640x480" alt="Product 1">
-                       <h3>뼈다귀</h3>
-                       <p>맛있어 보이는 뼈다귀다</p>
-                       <button>Add to Cart</button>
+                   <div class="product-item" th:each="product : ${products}">
+                      <picture th:each="img : ${product.productImgs}">
+                        <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="320" height="240">
+                        <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg" width="320" height="240">
+                        <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="320" height="240">
+                       </picture>
+                       <h3 th:text="${product.product_name}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">뼈다귀</h3>
+                       <p th:text="${product.product_content}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">맛있어 보이는 뼈다귀다</p>
+                       <a class="btn" th:href="@{/product/productContent(product_no=${product.product_no})}">Add to Cart</a>
                    </div>
-                   <div class="product-item">
-                       <img src="http://via.placeholder.com/640x480" alt="Product 2">
-                       <h3>목줄</h3>
-                       <p>아프지 않아 보이는 목줄이다</p>
-                       <button>Add to Cart</button>
-                   </div>
-                   <div class="product-item">
-                       <img src="http://via.placeholder.com/640x480" alt="Product 3">
-                       <h3>사료</h3>
-                       <p>든든할 것 같은 사료다</p>
-                       <button>Add to Cart</button>
-                   </div>
-                   <div class="product-item">
-                    <img src="http://via.placeholder.com/640x480" alt="Product 3">
-                    <h3>빗</h3>
-                    <p>기분좋을 것 같은 빗이다</p>
-                    <button>Add to Cart</button>
-                </div>
-                <div class="product-item">
-                    <img src="http://via.placeholder.com/640x480" alt="Product 3">
-                    <h3>원반</h3>
-                    <p>재밌어 보이는 놀이도구다</p>
-                    <button>Add to Cart</button>
-                </div>
-                <div class="product-item">
-                    <img src="http://via.placeholder.com/640x480" alt="Product 3">
-                    <h3>강아지용 카드</h3>
-                    <p>멋있어 보이는 카드다</p>
-                    <button>Add to Cart</button>
-                </div>
                </div>
            </div>
        </section>

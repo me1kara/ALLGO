@@ -142,10 +142,13 @@ button:hover {
                                       <tr><td colspan="2">
                                             <table class="table">
                                                   <span style="font-weight: bold;">금액상세</span>
-                                                  <tr><td>금액</td><td th:text="${product.price*product.amount}">+15000원</td></tr>
-                                                  <tr><td th:text="${'할인율(' + product.discount_rate+'%)'}">할인율(5%)</td><td th:text="${(product.price*product.amount*product.discount_rate)+'원'}">-750원</td></tr>
+                                                  <tr><td>금액</td><td th:text="${product.price*product.amount + '원'}">+15000원</td></tr>
+                                                  <tr th:if="${product.discount_rate}"><td th:text="${'할인율(' + product.discount_rate+'%)'}">할인율(5%)</td><td th:text="${(product.price*product.amount*product.discount_rate)+'원'}">-750원</td></tr>
                                                   <tr><td>배송비</td><td th:text="${delivery_price+'원'}">+3000원</td></tr>
-                                                  <tr><th>총금액</th><td th:text="${(product.price*product.amount*(1-product.discount_rate))+delivery_price}" id="total_price">17000원</td></tr>
+                                                  <tr><th>총금액</th>
+                                                    <td th:if="${product.discount_rate}" th:text="${(product.price*product.amount*(1-product.discount_rate))+delivery_price}" id="total_price">17000원</td>
+                                                    <td th:if="${product.discount_rate==null}" th:text="${(product.price*product.amount)+delivery_price}" id="total_price">17000원</td>
+                                                  </tr>
 
                                             </table>
                                       </td></tr>

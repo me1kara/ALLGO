@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -40,15 +41,35 @@ public class ProductController {
     ObjectMapper objectMapper;
 
     @RequestMapping("/hotDeal")
-    public String showHotdealProdcuts(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
-                                      @RequestParam(value = "size",defaultValue = "10",required = false) int size,
-                                      SearchDTO search,
-                                      Model model){
-        Pageable pageRequest = PageRequest.of(page,size);
-        Page<Product> pages = productService.getHotProducts(pageRequest, search);
-        model.addAttribute("products",pages);
+    public String showHotdealProdcuts(
+                                      Model model) throws JsonProcessingException {
+
+        List<Product> twentyProducts = productService.getHotProduct(0.2d);
+        List<Product> teenProducts = productService.getHotProduct(0.1d);
+        List<Product> fiveProducts = productService.getHotProduct(0);
+
+        model.addAttribute("twentyProducts",twentyProducts);
+        model.addAttribute("teenProducts",teenProducts);
+        model.addAttribute("fiveProducts",fiveProducts);
 
         return "product/hotDeal";
+    }
+    @RequestMapping("/hotDealList")
+    public String showHotdealProdcutList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+                                         @RequestParam(value = "size",defaultValue = "10",required = false) int size,
+                                         SearchDTO search,
+                                         @RequestParam(value= "discount", required = false) Double discount,
+                                         Model model) throws JsonProcessingException {
+        Pageable pageRequest = PageRequest.of(page,size);
+        Page<Product> pages = productService.getHotProducts(pageRequest, search, discount);
+        model.addAttribute("products",pages);
+        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
+        //String cateJson = objectMapper.writeValueAsString(cateList);
+        model.addAttribute("cateJson", cateList);
+        model.addAttribute("discount",discount);
+
+        return "product/hotDealList";
     }
 
     @RequestMapping("/shopping")
@@ -59,7 +80,6 @@ public class ProductController {
         Pageable pageRequest = PageRequest.of(page,size);
         Page<Product> pages = productService.getAllProduct(pageRequest, search);
         model.addAttribute("products",pages);
-
         List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
@@ -67,19 +87,21 @@ public class ProductController {
 
         return "product/allProducts";
     }
-
-    @RequestMapping("/used")
-    public String showUsedProducts(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
-                                   @RequestParam(value = "size",defaultValue = "10",required = false) int size,
-                                   SearchDTO search,
-                                   Model model){
-        Pageable pageRequest = PageRequest.of(page,size);
-        Page<Product> pages = productService.getUsedProducts(pageRequest, search);
-        model.addAttribute("products",pages);
-        return "product/usedProduct";
-    }
     @RequestMapping("/ranking")
-    public String showProductRanking(){
+    public String showProductRanking(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+                                     @RequestParam(value = "size",defaultValue = "10",required = false) int size,
+                                     @RequestParam(required = false) Long categoryId,
+                                     @RequestParam(required = false) String date,
+                                     Model model) throws JsonProcessingException {
+        Pageable pageRequest = PageRequest.of(page,size);
+        Page<Product> pages = productService.getProductRanking(pageRequest, categoryId,date);
+        model.addAttribute("products",pages);
+        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
+        //String cateJson = objectMapper.writeValueAsString(cateList);
+        model.addAttribute("cateJson", cateList);
+        model.addAttribute("date",date);
+        model.addAttribute("size",size);
 
         return "product/ranking";
     }
@@ -130,6 +152,22 @@ public class ProductController {
         return "product/buyProductForm";
     }
 
+    @GetMapping("/addProduct")
+    public String addProduct(Model model){
+        model.addAttribute("product", new Product());
+        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
+        //String cateJson = objectMapper.writeValueAsString(cateList);
+        model.addAttribute("cateList", cateList);
+        return "product/addProductForm";
+    }
+
+    @PostMapping("addProduct")
+    public String addProduct(Product product){
+
+        return "product/shopping";
+    }
+
     @RequestMapping("/favorite")
     @ResponseBody
     public String inclementFavorite(@RequestParam("product_no") Long product_no){
@@ -153,6 +191,26 @@ public class ProductController {
 
         return productService.keepProduct(keeperId,product_no,product_count);
     }
+
+    @PostMapping("/cancelCart")
+    @ResponseBody
+    public ResponseEntity<String> cancelCart(@RequestParam("cnoList") List<Long> cnoList) {
+        productService.cancelCart(cnoList);
+        // 예시로 성공적으로 취소되었다고 가정하고 OK 응답을 반환
+        return ResponseEntity.ok("취소되었습니다.");
+    }
+
+    @GetMapping("/cancelOrder")
+    public String cancelOrder(){
+
+        return "/";
+    }
+
+    @GetMapping("/orderProduct")
+    public String orderProduct(){
+        return "/";
+    }
+
 
 
 }

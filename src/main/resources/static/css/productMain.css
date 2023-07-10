@@ -26,13 +26,6 @@
   cursor: pointer;
 }
 
-/* 카드 리스트 */
-.cards-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
 .card-top {
   width: 32%;
   margin-bottom: 20px;
@@ -58,6 +51,9 @@
   margin-bottom: 5px;
   font-size: 18px;
   font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-price {
@@ -109,24 +105,24 @@
   display: inline-block;
   padding: 5px 10px;
   border-radius: 4px;
-  background-color: #f2f2f2;
+  background-color: white;
   color: #333;
   text-decoration: none;
 }
 
 .pagination a:hover {
-  background-color: #007bff;
+  background-color: #57a0e3;
   color: #fff;
 }
 
 .pagination .disabled a, .pagination .disabled span {
   cursor: default;
-  background-color: #ccc;
+  background-color: white;
   color: #666;
 }
 
 .pagination .active a, .pagination .active span {
-  background-color: #007bff;
+  background-color: #57a0e3;
   color: #fff;
   cursor: default;
 }

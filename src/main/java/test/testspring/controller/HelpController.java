@@ -43,6 +43,24 @@ public class HelpController {
         return "/help/main";
     }
 
+    @GetMapping("/myQuestionList")
+    public String viewMyQuestionList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+                                      @RequestParam(value = "size",defaultValue = "10",required = false) int size,
+                                      SearchDTO search,
+                                      Model model,
+                                     String listItem) throws JsonProcessingException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+        Pageable pageRequest = PageRequest.of(page,size);
+        Page<HelpBoard> helps = helpService.findByMemberId(pageRequest,id,search.getKeyword());
+        model.addAttribute("helps",helps);
+        model.addAttribute("listItem",listItem);
+
+        return "/help/myQuestionList";
+    }
+
+
+
 
     @GetMapping("/questionList")
     public String viewQuestionList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
@@ -69,7 +87,6 @@ public class HelpController {
         model.addAttribute("top",top);
 
         return "/help/questionContent";
-
     }
 
     @PostMapping("/addComment")

@@ -12,7 +12,9 @@ public interface HelpRepository extends JpaRepository<HelpBoard, Long> {
 
     Page<HelpBoard> findByTitleContaining(String title, Pageable pageRequest);
     Page<HelpBoard> findByTitleContainingOrContentContaining(String title, String content, Pageable pageRequest);
-    Page<HelpBoard> findByMemberId(String customerId, Pageable pageRequest);
+    Page<HelpBoard> findByMemberIdAndTitleContaining(String memberId, String title, Pageable pageRequest);
+
+    Page<HelpBoard> findByMemberId(String memberId, Pageable pageRequest);
 
 
 }

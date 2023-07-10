@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragment/_layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
+
+    <title>타이틀</title>
+
+    <script th:inline="javascript">
+      $(document).ready(function(){
+        $('#myQuestionList').css('color','green').css('text-decoration','underline');
+      })
+
+    </script>
+    <style>
+      article>a{
+            color: black;
+            text-decoration: none;
+      }
+      article>a:hover{
+            color: green;
+      }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" class="container-md w-50">
+    <section>
+        <article class="row bg-dark opacity-75 my-2 align-items-center ">
+            <h1 class="text-light col" style="text-align: center;">고객센터</h1>
+            <form action="" class="col-md-6">
+                <div class="input-group">
+                    <form th:action="@{/help/myQuestionList}">
+                        <input type="text" name="keyword" class="form-control input-data" placeholder="질문검색">
+                        <button class="input-group-append btn btn-light"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+            </form>
+        </article>
+        <article class="border-bottom">
+            <a th:href="@{/help/myQuestionList}" id="myQuestionList">문의내역</a>
+            <a th:href="@{/help/question?listItem=manyQuestionList}" id="manyQuestionList">자주묻는 질문</a>
+            <a th:href="@{/help/questionList}" id="questionList">질문게시판</a>
+        </article>
+        <article>
+            <ul class="list-group" id="question-list">
+                <li th:each="help:${helps}" class="list-group-item list-group-item-action text-center">
+                    <a th:href="@{/help/questionContent(id=${help.id})}" th:text="${help.title}"></a>
+                </li>
+                <div th:if="${helps.isEmpty()}">
+                    문의하신 내역이 없습니다
+                </div>
+            </ul>
+        </article>
+    </section>
+</div>
+</body>
+</html>

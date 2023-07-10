@@ -18,13 +18,10 @@
                     <h5>링크</h5>
                     <ul class="list-unstyled">
                         <li>
-                            <a href="#">홈</a>
+                            <a th:href="@{/}">홈</a>
                         </li>
                         <li>
-                            <a href="#">제품</a>
-                        </li>
-                        <li>
-                            <a href="#">고객센터</a>
+                            <a th:href="@{/product/shopping}">제품</a>
                         </li>
                     </ul>
                 </div>
@@ -32,7 +29,7 @@
                     <h5>지원</h5>
                     <ul class="list-unstyled">
                         <li>
-                            <a href="#">문의하기</a>
+                            <a th:href="@{/help/question?listItem=manyQuestionList}">고객센터</a>
                         </li>
                         <li>
                             <a href="#">배송조회</a>
@@ -60,16 +57,16 @@
                     <h5>회사정보</h5>
                     <ul class="list-unstyled">
                         <li>
-                            <a href="#">이용약관</a>
+                            adress : xx동 xx로 xx길 1-1
                         </li>
                         <li>
-                            <a href="#">개인정보처리방침</a>
+                            TEL : XXX-XXXX-XXXX
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="text-center py-3">
-                <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> 쇼핑몰. All rights reserved.</p>
+                <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> Copyright: amigoo.store</p>
             </div>
         </div>
     </footer>

@@ -7,9 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import test.testspring.domain.Cart;
 import test.testspring.domain.Member;
 import test.testspring.domain.Order;
-import test.testspring.domain.Product;
 import test.testspring.service.EmailService;
 import test.testspring.service.MemberService;
 import test.testspring.service.ProductService;
@@ -94,8 +94,8 @@ public class MemberController {
 //        return "members/memberList";
 //    }
 
-//    @GetMapping("/findId")
-//    public String findMember(){return "member/findId";}
+    @GetMapping("/findId")
+    public String findMember(){return "login/findId";}
 
     @PostMapping("/checkId")
     @ResponseBody
@@ -150,10 +150,7 @@ public class MemberController {
         if(!emailValid) return emailService.sendSimpleMessage(email);
         else return "no";
     }
-    @GetMapping("/findId")
-    public String findPw() throws Exception {
-        return "login/findId";
-    }
+
     @PostMapping("/findAndSet")
     public String findIdByEmail(HttpServletRequest request, Model model) throws Exception {
         String emailParam = request.getParameter("email");
@@ -180,31 +177,24 @@ public class MemberController {
     }
 
     @GetMapping("/myPage")
-    public String mypage(HttpSession session,Model model, @RequestParam("item") String item){
+    public String myPage(HttpSession session,Model model, @RequestParam(value = "item",required = false) String item){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
         switch(item){
             case "cart" :
-                List<Product> cartList =  productService.getCartList(id);
+                List<Cart> cartList =  productService.getCartList(id);
                 model.addAttribute("myCart", cartList);
                 break;
             case "orderList" :
                 List<Order> orderList = productService.getOrderList(id);
                 model.addAttribute("orderList", orderList);
-
                 break;
-            case "paymentList" :
-
-                break;
-            case "myInformation":
-                break;
-            default: break;
         }
 
         System.out.println("확인용마이페이지");
-        return "member/mypage";
+        return "member/myPage";
     }
 
 

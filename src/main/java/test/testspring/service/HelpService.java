@@ -33,6 +33,7 @@ public class HelpService {
 
     public Page<HelpBoard> findAll(Pageable pageRequest, SearchDTO search) {
         String type = search.getSearchType();
+        System.out.println(type);
         Page<HelpBoard> helpBoards;
         if(type!=null){
             String keyword = search.getKeyword();
@@ -71,5 +72,11 @@ public class HelpService {
 
     public void addComment(HelpComment comment) {
         helpCommentRepository.save(comment);
+    }
+
+    public Page<HelpBoard> findByMemberId(Pageable pageRequest, String id,String title) {
+        if(title!=null){
+            return helpRepository.findByMemberIdAndTitleContaining(title, id, pageRequest);
+        }else return helpRepository.findByMemberId(id,pageRequest);
     }
 }

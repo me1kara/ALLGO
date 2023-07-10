@@ -47,9 +47,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                     }
                                 })
                         .permitAll()
-
                 )
-                .logout((logout) -> logout.logoutSuccessUrl("/").permitAll());
+                .logout((logout) -> logout
+                        .logoutUrl("/member/logout") // 로그아웃 URL 설정
+                        .logoutSuccessUrl("/") // 로그아웃 후 리다이렉트할 URL
+                        .permitAll()
+                );
     }
 
     @Autowired

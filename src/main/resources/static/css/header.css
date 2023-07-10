@@ -1,6 +1,6 @@
 /* 헤더 상단 영역 스타일 */
 .header-top {
-    background-color: #f8f9fa;
+    background-color: #fff;
     padding: 10px 0;
   }
   
@@ -21,9 +21,10 @@
   .searchItem input[type="text"] {
     width: 300px;
     padding: 5px 10px;
-    border: none;
+    border: 1px solid #57a0e3;
     border-radius: 20px;
     margin-right: 10px;
+    
   }
   
   .searchItem button {

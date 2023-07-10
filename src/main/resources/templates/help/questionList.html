@@ -15,13 +15,7 @@
 
     <script th:inline="javascript">
       $(document).ready(function(){
-            const listItem = [[${listItem}]];
-            switch(listItem){
-                  case "myQeustionList" : $('#myQeustionList').css('color','green').css('text-decoration','underline'); break;
-                  case "manyQeustionList" : $('#manyQeustionList').css('color','green').css('text-decoration','underline'); break;
-                  case "refund" : $('#refund').css('color','green').css('text-decoration','underline'); break;
-                  default : break;
-            }
+            $('#questionList').css('color','green').css('text-decoration','underline');
       })
 
     </script>
@@ -42,22 +36,27 @@
                   <h1 class="text-light col" style="text-align: center;">고객센터</h1>
                   <form action="" class="col-md-6">
                         <div class="input-group">
-                              <input type="text" class="form-control input-data" placeholder="질문하기">
-                              <button class="input-group-append btn btn-light"><i class="fas fa-search"></i></button>
+                              <form th:action="@{/help/questionList}">
+                                    <input type="text" name="keyword" class="form-control input-data" placeholder="질문검색">
+                                    <input type="hidden" name="searchType" value="title">
+                                    <button class="input-group-append btn btn-light"><i class="fas fa-search"></i></button>
+                              </form>
                         </div>
                   </form>
             </article>
             <article class="border-bottom">
-                  <a th:href="@{/help/question?listItem=myQeustionList}" id="myQeustionList">문의내역</a>
-                  <a th:href="@{/help/question?listItem=manyQeustionList}" id="manyQeustionList">자주묻는 질문</a>
-                  <a th:href="@{/help/question?listItem=refund}" id="refund">환불문의</a>
-                  <a href="@/help/questionList">질문게시판</a>
+                  <a th:href="@{/help/myQuestionList?listItem=myQuestionList}" id="myQuestionList">문의내역</a>
+                  <a th:href="@{/help/question?listItem=manyQuestionList}" id="manyQuestionList">자주묻는 질문</a>
+                  <a th:href="@{/help/questionList}" id="questionList">질문게시판</a>
             </article>
             <article>
                   <ul class="list-group" id="question-list">
                         <li th:each="help:${helps}" class="list-group-item list-group-item-action text-center">
                               <a th:href="@{/help/questionContent(id=${help.id})}" th:text="${help.title}"></a>
                         </li>
+                        <div th:if="${helps.isEmpty()}">
+                              문의하신 내역이 없습니다
+                        </div>
                   </ul>
             </article>
       </section>

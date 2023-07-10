@@ -22,25 +22,20 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long product_no;
     private String seller_id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id")
-    private Card card;
-
     private String product_name;
-
     private String product_content;
-
     private BigDecimal price;
-
     private Float discount_rate;
     private Integer amount;
     private LocalDateTime registration_at;
     private int favorite;
     private int view;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "card_id")
+    private Card card;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private final List<ProductImg> productImgs = new ArrayList<>();
-
     @OneToOne
     @JoinColumn(name="cate_code")
     private ProductCategory productCategory;

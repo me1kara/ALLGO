@@ -2,8 +2,7 @@ package test.testspring.service;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,8 @@ import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.*;
 import test.testspring.repository.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,53 +76,6 @@ public class ProductService {
         return allProduct;
     }
 
-    public Page<Product> getHotProducts(Pageable pageRequest, SearchDTO search) {
-        String type = search.getSearchType();
-        Page<Product> hotProducts;
-        if (type == null) {
-            hotProducts=productRepository.findAll(pageRequest);
-
-        } else {
-            switch (type) {
-                case "title":
-                    hotProducts = productRepository.findByTitleContaining(search, pageRequest);
-                    break;
-                case "titleOrContent":
-                    hotProducts = productRepository.findByTitleOrContentContaining(search, pageRequest);
-                    break;
-                case "writer":
-                    hotProducts = productRepository.findByWriterContaining(search, pageRequest);
-                    break;
-                default:
-                    hotProducts = productRepository.findAll(pageRequest);
-                    break;
-            }
-        }
-        return hotProducts;
-    }
-    public Page<Product> getUsedProducts(Pageable pageRequest, SearchDTO search) {
-        String type = search.getSearchType();
-        Page<Product> usedProducts;
-        if (type == null) {
-            usedProducts=productRepository.findAll(pageRequest);
-        } else {
-            switch (type) {
-                case "title":
-                    usedProducts = productRepository.findByTitleContaining(search, pageRequest);
-                    break;
-                case "titleOrContent":
-                    usedProducts = productRepository.findByTitleOrContentContaining(search, pageRequest);
-                    break;
-                case "writer":
-                    usedProducts = productRepository.findByWriterContaining(search, pageRequest);
-                    break;
-                default:
-                    usedProducts = productRepository.findAll(pageRequest);
-                    break;
-            }
-        }
-        return usedProducts;
-    }
 
     public Product getProductByNo(Long productNo) {
         Optional<Product> product = productRepository.findById(productNo);
@@ -132,8 +86,8 @@ public class ProductService {
         productRepository.incrementView(productNo);
     }
 
-    public List<Product> getCartList(String mid){
-        return productRepository.getCartList(mid);
+    public List<Cart> getCartList(String mid){
+        return cartRepository.findAllByMid(mid);
     }
 
     public List<Order> getOrderList(String id) {
@@ -148,7 +102,7 @@ public class ProductService {
         Optional<Favorite> favorite = productRepository.validFavoriteProductById(id,productNo);
         Long validFavorite = favorite.orElse(new Favorite()).getProduct_no();
         log.info("update favorite {}", validFavorite , id,productNo);
-        Favorite far = new Favorite(id,productNo);
+        Favorite far = new Favorite(id,productNo,new Date());
         if(validFavorite==null){
             //productRepository.createFavorite(far);
             favoriteRepository.save(far);
@@ -162,7 +116,9 @@ public class ProductService {
 
     }
     public String keepProduct(String keeperId, Long productNo, int productCount) {
-        Cart cart = Cart.builder().mid(keeperId).pno(productNo).pCount(productCount).build();
+        Product p = new Product();
+        p.setProduct_no(productNo);
+        Cart cart = Cart.builder().mid(keeperId).product(p).pCount(productCount).build();
         cartRepository.save(cart);
         return "success";
     }
@@ -171,4 +127,98 @@ public class ProductService {
         Optional<Favorite> fav = favoriteRepository.findByIdAndProductNo(id,productNo);
         return fav.isPresent() ? "♥":"♡";
     }
+
+
+    public Page<Product> getProductRanking(Pageable pageRequest, Long categoryId,String date) {
+
+        Page<Product> productRanking;
+        Date targetDate;
+        System.out.println(date);
+        if (date!=null && (date.equals("daily") || date.equals("weekly") || date.equals("monthly"))) {
+            Calendar calendar = Calendar.getInstance();
+            switch (date) {
+                case "daily":
+                    calendar.add(Calendar.DAY_OF_MONTH, -1);
+                    break;
+                case "weekly":
+                    calendar.add(Calendar.WEEK_OF_YEAR, -1);
+                    break;
+                case "monthly":
+                    calendar.add(Calendar.MONTH, -1);
+                    break;
+            }
+            targetDate = calendar.getTime();
+            if (categoryId != null) {
+                productRanking = productRepository.findAllByCategoryIdAndCreatedAtIsAfterOrderByFavorite(categoryId, targetDate, pageRequest);
+            } else {
+                productRanking = productRepository.findAllByCreatedAtIsAfterOrderByFavorite(targetDate, pageRequest);
+
+            }
+        } else {
+            if (categoryId != null) {
+                productRanking = productRepository.findAllByCategoryIdOrderByFavorite(categoryId, pageRequest);
+            } else {
+                productRanking = productRepository.findAllOrderByFavorite(pageRequest);
+            }
+        }
+
+        return productRanking;
+
+    }
+
+    public List<Product> getMainProduct() {
+        return productRepository.findTopSixFavoriteProductsByCategory();
+    }
+
+    public List<Product> getHotProduct(double rate) {
+
+        return productRepository.findLimitedByDiscountRate(rate);
+    }
+
+    public Page<Product> getHotProducts(Pageable pageRequest, SearchDTO search, double rate){
+        String type = search.getSearchType();
+        Long categoryId = search.getCategoryId();
+        Page<Product> allProduct;
+        if (type == null) {
+            if(categoryId != null){
+                allProduct=productRepository.findByCategoryIdAndDiscountRate(categoryId, pageRequest, rate);
+            }else {
+                allProduct=productRepository.findAllByDiscountRate(pageRequest, rate);
+            }
+        } else {
+            switch (type) {
+                case "title":
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByCategoryIdAndTitleContainingAndDiscountRate(search, pageRequest, rate);
+                    }else{
+                        allProduct = productRepository.findByTitleContainingAndDiscountRate(search, pageRequest, rate);
+                    }
+                    break;
+                case "titleOrContent":
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByCategoryIdAndTitleOrContentContainingAndDiscountRate(search, pageRequest, rate);
+                    }else {
+                        allProduct = productRepository.findByTitleOrContentContainingAndDiscountRate(search, pageRequest, rate);
+                    }
+                    break;
+                case "writer":
+                    if(categoryId!=null){
+                        allProduct = productRepository.findByCategoryIdAndWriterContainingAndDiscountRate(search, pageRequest, rate);
+                    } else{
+                        allProduct = productRepository.findByWriterContainingAndDiscountRate(search, pageRequest, rate);
+                    }
+                    break;
+                default:
+                    allProduct = productRepository.findAllByDiscountRate(pageRequest, rate);
+                    break;
+            }
+        }
+        return allProduct;
+    }
+
+
+    public void cancelCart(List<Long> cnoList) {
+        cartRepository.deleteAllByIds(cnoList);
+    }
 }
+

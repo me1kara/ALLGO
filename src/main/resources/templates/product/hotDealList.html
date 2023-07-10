@@ -13,7 +13,8 @@
 
      <link rel="stylesheet" th:href="@{/css/productMain.css}">
     <!-- <link rel="stylesheet" href="../../static/css/productMain.css"> -->
-    <title>랭킹</title>
+    
+    <title>올고</title>
 
     <style>
         .form_section_content select {		/* 카테고리 css 설정 */
@@ -22,15 +23,6 @@
             font-size: 20px;
             text-align-last: center;
             margin-left: 5px;
-        }
-        .cards-wrap{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-        }
-
-        .card-top{
-            width:20%;
         }
 
         .cate_wrap:not(:first-child) {
@@ -67,10 +59,14 @@
         .cate-sub li a:hover {
             color: #ff0000;
         }
-        
-        .raking-text{
-            margin-left: 10px;
+
+        /* 카드 리스트 */
+        .cards-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
         }
+
     </style>
 
     <script th:inline="javascript">
@@ -80,15 +76,21 @@
                 list[i].style.display = 'none';
             }
             e.nextElementSibling.style.display = 'block';
-        }      
+        }   
         $(document).ready(function(){
+            let rateText = [[${discount}]];
+            if(rateText == 0 || rateText == null){
+                $('#rateText').text('할인율 1%~10%').addClass('text-success');
+            }else if(rateText == 10){
+                $('#rateText').text('할인율 11%~20%').addClass('text-warning');
+            }else if(rateText == 20){
+                $('#rateText').text('할인율 21%~30%');
+            }
+
             let cateList = [[${cateJson}]];
             const cteL = document.getElementById('categoryList');
             let allEl = document.createElement('div');
-            
-            let param = getParam('date');
-
-            allEl.innerHTML = '<div class="cate_warp"><span><a href="/product/ranking?date='+param+'" class="ld">ALL</a></span></div>';
+            allEl.innerHTML = '<div class="cate_warp"><span><a href="/product/hotDealList?discount='+rateText+'" class="ld">ALL</a></span></div>';
             cteL.appendChild(allEl);
             for (let i = 0; i < cateList.length; i++) {
                 if(cateList[i].tier=='1'){
@@ -97,62 +99,17 @@
                     temp+='<div class="cate_warp">';
                     temp+='<span onclick="showSub(this);">'+cateList[i].categoryName+'</span>';
                     temp+='<ul class="cate-sub">';
-                    temp += '<li><a href="/product/ranking?categoryId=' + cateList[i].categoryId +'&date='+ param + '"> ALL</a></li>';
+                    temp+='<li><a href="/product/hotDealList?categoryId='+cateList[i].categoryId+'&discount='+rateText+'"> ALL</a></li>';
                     cateList[i].children.forEach(element => {
-                    temp += '<li><a href="/product/ranking?categoryId=' + element.categoryId + '&date='+ param + '">' + element.categoryName + '</a></li>';
+                        temp += '<li><a href="/product/hotDealList?categoryId=' + element.categoryId + '&discount='+rateText +'">' + element.categoryName + '</a></li>';
                     });
-                    temp += '</ul>';
-                    temp += '</div>';
-
-                    div.innerHTML = temp;
+                    temp+='</ul>';
+                    temp+='</div>';
+                    div.innerHTML = temp;                  
                     cteL.appendChild(div);
                 }
             }
         });
-
-        function getParam(param){
-            let includeParam = location.search.includes(param);
-            let paramData = '';
-            if (includeParam) {
-                // 'date' 파라미터가 이미 URL에 있는 경우
-                const searchParams = new URLSearchParams(location.search);
-                const dateValue = searchParams.get('date');
-                paramData = dateValue;
-            }
-
-            return paramData;
-        }
-
-        function selectDate() {
-            let dateParam = location.search.includes('date');
-            let selectedDate = document.getElementById('dateCate').value;
-            let url = new URL(location.href);
-            if (dateParam) {
-                // 'date' 파라미터가 이미 URL에 있는 경우
-                url.searchParams.set('date', selectedDate);
-            } else {
-                // 'date' 파라미터가 URL에 없는 경우
-                url.searchParams.append('date', selectedDate);
-            }
-            console.log(url);
-
-            location.href = url.toString();
-        }
-
-        function addItems(){
-            let sizeParam = location.search.includes('size');
-            let url = new URL(location.href);
-            let size = [[${size}]] +10;
-            if (sizeParam) {
-                // 'date' 파라미터가 이미 URL에 있는 경우
-                url.searchParams.set('size', size);
-            } else {
-                // 'date' 파라미터가 URL에 없는 경우
-                url.searchParams.append('size', size);
-            }
-
-            location.href = url.toString();
-        }
     </script>
 
 </head>
@@ -162,25 +119,21 @@
     <div id="categoryList" style="display: flex;">
     </div>
 
-    <div style="display: flex;">
-        <select name="date" id="dateCate" onchange="selectDate()" th:value="${date}">
-            <option value="daily" th:selected="${date=='daily'}">1일</option>
-            <option value="weekly" th:selected="${date=='weekly'}">7일</option>
-            <option value="monthly" th:selected="${date=='monthly'}">30일</option>
-        </select>
-    </div>
+    <h2 id="rateText" class="text-danger"></h2>
+
+    <hr>
 
     <div th:if="${products}">
     <section class="cards-wrap">
-        <article class="card-top " th:each="product, productStat : ${products}">
-            <span th:text="${productStat.count}" th:style="${productStat.count == 1 ? 'color:red' : productStat.count == 2 ? 'color:blue' : productStat.count == 3 ? 'color:green' : 'color:black'}" class="raking-text"></span>
+        <article class="card-top " th:each="product : ${products}">
             <a class="card-link " data-event-label="572574579" th:href="@{/product/productContent(product_no=${product.product_no})}">
-                <div class="card-photo">
+                <div class="card-photo ">
                     <picture th:each="img : ${product.productImgs}">
                         <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="121px" height="121px">
                         <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg">
                         <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="121px" height="121px">
                     </picture>
+                      
                 </div>
                 <div class="card-desc">
                     <h2 class="card-title" th:text="${product.product_name}">이름</h2>
@@ -195,13 +148,62 @@
                 </div>
             </a></article>
     </section>
-    
-    <div class="text-center" th:if="${size < products.getTotalElements()}">
-        <button class="btn" onclick="addItems()">
-            <i style="font-size:24px" class="fas">&#xf103;</i>
-        </button>
+    <section class="list_bottom_btnbox row">
+        <div class="col">
+
+        </div>
+        <div class="pagination col" style="margin: 0 auto;" th:if="${!products.isEmpty()}">
+            <ul>
+                <li th:class="${products.first} ? disabled">
+                    <a th:if="${not products.first}" th:href="@{${url}(page=0, size=${products.size}, sort=${products.sort})}">&laquo;</a>
+                    <span th:if="${products.first}">&laquo;</span>
+                </li>
+                <li th:class="${products.first} ? disabled">
+                    <a th:if="${not products.first}" th:href="@{${url}(page=${products.number - 1}, size=${products.size}, sort=${products.sort})}">&lt;</a>
+                    <span th:if="${products.first}">&lt;</span>
+                </li>
+                <li th:each="pageNumber : ${#numbers.sequence(0, products.totalPages - 1)}" th:class="${pageNumber == products.number} ? active">
+                    <a th:if="${pageNumber != products.number}" th:href="@{${url}(page=${pageNumber}, size=${products.size}, sort=${products.sort})}" th:text="${pageNumber + 1}"></a>
+                    <span th:if="${pageNumber == products.number}" th:text="${pageNumber + 1}"></span>
+                </li>
+                <li th:class="${products.last} ? disabled">
+                    <a th:if="${not products.last}" th:href="@{${url}(page=${products.number + 1}, size=${products.size}, sort=${products.sort})}">&gt;</a>
+                    <span th:if="${products.last}">&gt;</span>
+                </li>
+                <li th:class="${products.last} ? disabled">
+                    <a th:if="${not products.last}" th:href="@{${url}(page=${products.totalPages - 1}, size=${products.size}, sort=${products.sort})}">&raquo;</a>
+                    <span th:if="${products.last}">&raquo;</span>
+                </li>
+            </ul>
+        </div>
+        <div th:if="${products.isEmpty()}">
+            <h1>상품이 비어있습니다.</h1>
+        </div>
+        <div class="fr col" style="text-align: right; display: flex; flex-direction: row-reverse; align-items: center;">
+            <button id="write_post_btn" sec:authorize="isAuthenticated()" type="button" class="btn btn-sm btn-secondary" onclick="location.pathname='/product/addProduct'">상품등록</button>
+        </div>
+    </section>
     </div>
-    
+    <div style="width:500px; margin: 0 auto; padding: 10px 10px;">
+        <form method="get" th:action="@{/product/hotDealList}">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <select class="search-type" name="searchType">
+                        <option value="titleOrContent" id="search-all" class="search-all">제목/내용</option>
+                        <option value="title" id="search-title" class="search-title">제목</option>
+                        <option value="writer" id="search-writer" class="search-writer">작성자</option>
+                    </select>
+                </div>
+                <input type="text" id="keyword" name="keyword" class="form-control" aria-label="Text input with dropdown button" required>
+                <input type="hidden" id="categoryId" name="categoryId" th:value="${param.categoryId}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
 
 </main>
 </body>
