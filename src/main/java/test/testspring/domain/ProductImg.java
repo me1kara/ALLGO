@@ -13,17 +13,15 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor
 @Table(name="productimg")
+@Builder
 public class ProductImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long pid;
     private String url;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pid", insertable = false, updatable = false)
+    @JoinColumn(name = "pid")
     private Product product;
 
 

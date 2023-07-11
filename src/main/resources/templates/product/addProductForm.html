@@ -13,60 +13,151 @@
 
     <script th:inline="javascript">
 
-            let cteL;
+            let cateList;
 
             $(document).ready(function(){
-                let cateList = [[${cateList}]];
-                cteL = document.getElementById('categoryList');
-                let select = document.createElement('select');
-                cteL.appendChild(select);
+                cateList = [[${cateList}]];
+                let category1 = $('#category1');
+                let category2 = $('#category2');
+
+                let count = 0;
                 for (let i = 0; i < cateList.length; i++) {
+                    //맨 위에 있는 값 확인
                     if (cateList[i].tier == '1') {
-                    let optionDIV = document.createElement('option');
-                    optionDIV.text = cateList[i].categoryName;
-                    if (cateList[i].children.length !== 0) {
-                        optionDIV.addEventListener('click', function() {
-                            childSelect(cateList[i].children);
-                        });
-                    }
-                    select.appendChild(optionDIV);
-                    }
-                }
+                        if(count==0){
+                            cateList[i].children.forEach(c=>{
+                                $("#category2").append('<option value="' + c.categoryId + '">' + c.categoryName + '</option>');
+                            })
+                            count++;
+                        }
+                        let optionDIV = $('<option></option>');
+                        optionDIV.text(cateList[i].categoryName);
+                        optionDIV.val(cateList[i].categoryId);
+                        if(cateList[i].children.length!=0){
+                            let children = cateList[i].children;
+                            category1.change(()=>{
+                                let val = $("#category1").val();
 
-                function childSelect(children) {
-                    let childrenSelect = document.createElement('select');
-                    children.forEach(element => {
-                    let optionDIV = document.createElement('option');
-                    optionDIV.text = element.categoryName;
-                    if (element.children.length !== 0) {
-                        optionDIV.addEventListener('click', function() {
-                            childSelect(element.children);
-                        });
-                    }
-                    childrenSelect.appendChild(optionDIV);
-                    });
+                                $("#category2").empty();
+                                cateList.forEach(cate => {
+                                    if(cate.categoryId==val){
+                                        cate.children.forEach(element => {
+                                        $("#category2").append('<option value="' + element.categoryId + '">' + element.categoryName + '</option>');
+                                    });
+                                    }
+                                });
 
-                    cteL.appendChild(childrenSelect);
-                }
+                            })
+                        }
+                        category1.append(optionDIV);
+                    }
+
+            }
         });
+
     </script>
+
+    <style>
+        /* 폼 전체 스타일 */
+#addProductForm {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+label {
+  font-weight: bold;
+  color: #333;
+}
+
+/* 입력 필드 스타일 */
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+textarea {
+  height: 300px;
+}
+
+/* 파일 입력 필드 스타일 */
+input[type="file"] {
+  margin-bottom: 15px;
+}
+
+/* 제출 버튼 스타일 */
+input[type="submit"] {
+  background-color: orange;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+/* 선택 옵션 스타일 */
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* 카테고리 스타일 */
+#categories {
+  margin-bottom: 5px;
+  display: flex;
+}
+
+
+
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
     <section>
-        <form th:action="@{/product/addProduct}" id="addProductForm" th:object="${product}" method="post">
-            <div id="categoryList">
+        <form th:action="@{/product/addProduct}" id="addProductForm" method="post" class="container" enctype="multipart/form-data">
 
+            <label for="category1" class="form-label">카테고리</label><br>
+            <div id="categories" class="mb-3">
+                <!-- 대분류 선택 -->
+                <select id="category1" required class="form-select">
+                </select>
+                <!-- 소분류 선택 -->
+                <select id="category2" name="cateCode" required class="form-select">
+                </select>
             </div>
-            <select name="" id=""><option value=""></option></select>
-            <input type="text" name="product_name" th:field="*{product_name}">
-            <input type="text" name="product_content" th:field="*{product_content}">
-            <input type="number" name="price" th:field="*{price}">
-            <input type="number" name="amount" th:field="*{amount}">
-            <input type="file" name="productImgs" multiple>
-            <button type="submit">Submit</button>
-          </form>
-        <article></article>
+
+            <label for="title" class="form-label">제목</label><br>
+            <input type="text" id="title" name="product_name" class="form-control"><br>
+
+            <label for="title" class="form-label">수량</label><br>
+            <input type="number" id="amount" name="amount" class="form-control"><br>
+
+            <label for="title" class="form-label">가격</label><br>
+            <input type="number" id="price" name="price" class="form-control"><br>
+            
+            <label for="content" class="form-label">내용</label><br>
+            <textarea id="content" name="product_content" class="form-control"></textarea><br>
+
+
+            <div class="text-center">
+                <input type="file" multiple="multiple" id="file" name="files" class="form-control-file mb-3">
+                <input type="submit" value="작성하기" class="btn">
+            </div>    
+        </form>
+        
     </section>
 </div>
 </body>

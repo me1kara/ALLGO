@@ -14,14 +14,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import test.testspring.DTO.CategoryDto;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.Card;
 import test.testspring.domain.Member;
 import test.testspring.domain.Product;
+import test.testspring.domain.ProductCategory;
 import test.testspring.service.MemberService;
 import test.testspring.service.ProductService;
 
+import javax.servlet.ServletContext;
+import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +90,25 @@ public class ProductController {
         model.addAttribute("cateJson", cateList);
 
         return "product/allProducts";
+    }
+
+    @PostMapping("addProduct")
+    public String addProduct(Product product, @RequestParam("files") List<MultipartFile> files, ProductCategory category) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        product.setProductCategory(category);
+        Member member= memberService.findById(userId);
+        product.setMember(member);
+        product.setCard(member.getCards().get(1));
+
+        log.info("Product Card_no {}",member.getCards().get(1).getNo());
+
+        System.out.println(product.toString());
+
+        productService.addProduct(product, files);
+
+
+        return "redirect:/product/shopping";
     }
     @RequestMapping("/ranking")
     public String showProductRanking(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
@@ -162,11 +185,7 @@ public class ProductController {
         return "product/addProductForm";
     }
 
-    @PostMapping("addProduct")
-    public String addProduct(Product product){
 
-        return "product/shopping";
-    }
 
     @RequestMapping("/favorite")
     @ResponseBody
@@ -178,7 +197,6 @@ public class ProductController {
         String response = productService.incrementFavoriteProduct(id,product_no);
         return response;
     }
-
 
     @PostMapping("/keepProduct")
     @ResponseBody
@@ -210,7 +228,6 @@ public class ProductController {
     public String orderProduct(){
         return "/";
     }
-
 
 
 }

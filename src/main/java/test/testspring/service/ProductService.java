@@ -4,16 +4,21 @@ package test.testspring.service;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.*;
 import test.testspring.repository.*;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -23,13 +28,19 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final FavoriteRepository favoriteRepository;
     private final CartRepository cartRepository;
+
+    private final ProductImgRepository productImgRepository;
+
+    @Value("${upload.productImg}")
+    String fileUploadPath;
     @Autowired
-    public ProductService(ProductRepository productRepository, OrderRepository orderRepository, CategoryRepository categoryRepository, FavoriteRepository favoriteRepository, CartRepository cartRepository) {
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository, CategoryRepository categoryRepository, FavoriteRepository favoriteRepository, CartRepository cartRepository,ProductImgRepository productImgRepository) {
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.categoryRepository = categoryRepository;
         this.favoriteRepository = favoriteRepository;
         this.cartRepository = cartRepository;
+        this.productImgRepository = productImgRepository;
     }
 
     public Page<Product> getAllProduct(Pageable pageRequest, SearchDTO search){
@@ -219,6 +230,65 @@ public class ProductService {
 
     public void cancelCart(List<Long> cnoList) {
         cartRepository.deleteAllByIds(cnoList);
+    }
+
+    public void addProduct(Product product, List<MultipartFile> multipartFiles) throws IOException {
+        Product saveProduct = productRepository.save(product);
+        List<ProductImg> fileList = new ArrayList<>();
+
+        // 파일이 빈 것이 들어오면 빈 것을 반환
+        if (multipartFiles.isEmpty()) {
+            // 예외 처리 또는 필요한 로직 추가
+        } else {
+            for (MultipartFile multipartFile : multipartFiles) {
+                // 파일이 비어 있지 않을 때 작업을 시작해야 오류가 나지 않는다
+                if (!multipartFile.isEmpty()) {
+                    // jpeg, png, gif 파일들만 받아서 처리할 예정
+                    String contentType = multipartFile.getContentType();
+                    String originalFilename = multipartFile.getOriginalFilename();
+
+                    // 파일 확장자 추출
+                    String extension = extractExtension(originalFilename);
+                    if (!isImageFile(extension)) {
+                        // 이미지 파일이 아닌 경우 스킵
+                        continue;
+                    }
+
+                    // 파일 저장을 위한 식별자 생성
+                    String uuid = UUID.randomUUID().toString();
+                    String storeFilename = uuid + extension;
+
+                    // 저장된 파일로 변경하여 이를 보여주기 위함
+                    String filePath = fileUploadPath + "/" + storeFilename;
+                    File file = new File(filePath);
+                    multipartFile.transferTo(file);
+
+                    // ProductImg 생성
+                    ProductImg productImg = ProductImg.builder()
+                            .url(storeFilename)
+                            .product(saveProduct)
+                            .build();
+                    productImgRepository.save((productImg));
+                }
+            }
+        }
+    }
+
+    // 파일명으로부터 확장자 추출
+    private String extractExtension(String filename) {
+        int lastIndex = filename.lastIndexOf(".");
+        if (lastIndex >= 0) {
+            return filename.substring(lastIndex);
+        }
+        return "";
+    }
+
+    // 이미지 파일 여부 확인
+    private boolean isImageFile(String extension) {
+        return extension.equalsIgnoreCase(".jpg")
+                || extension.equalsIgnoreCase(".jpeg")
+                || extension.equalsIgnoreCase(".png")
+                || extension.equalsIgnoreCase(".gif");
     }
 }
 

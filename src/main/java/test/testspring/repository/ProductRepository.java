@@ -43,9 +43,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByTitleOrContentContaining(@Param("search") SearchDTO search, Pageable pageable);
     @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and (p.product_name like %:#{#search.keyword}% or p.product_content like %:#{#search.keyword}%)")
     Page<Product> findByTitleOrContentContainingWithCategoryId(@Param("search") SearchDTO search, Pageable pageable);
-    @Query("select p from Product p left join p.productCategory pc where p.seller_id like %:#{#search.keyword}%")
+    @Query("select p from Product p left join p.productCategory pc where p.member.id like %:#{#search.keyword}%")
     Page<Product> findByWriterContaining(@Param("search") SearchDTO search, Pageable pageable);
-    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and p.seller_id like %:#{#search.keyword}%")
+    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode =:#{#search.categoryId}) and p.member.id like %:#{#search.keyword}%")
     Page<Product> findByWriterContainingWithCategoryId(@Param("search") SearchDTO search, Pageable pageable);
 
     @Query("select p from Product p join p.productCategory pc where pc.cateCode = :categoryId or pc.cateParent.cateCode = : categoryId")
@@ -132,10 +132,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode = :#{#search.categoryId}) and (p.product_name like %:#{#search.keyword}% or p.product_content like %:#{#search.keyword}%) and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")
     Page<Product> findByCategoryIdAndTitleOrContentContainingAndDiscountRate(@Param("search") SearchDTO search, Pageable pageable, @Param("rate") double rate);
 
-    @Query("select p from Product p left join p.productCategory pc where p.seller_id like %:#{#search.keyword}% and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")
+    @Query("select p from Product p left join p.productCategory pc where p.member.id like %:#{#search.keyword}% and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")
     Page<Product> findByWriterContainingAndDiscountRate(@Param("search") SearchDTO search, Pageable pageable, @Param("rate") double rate);
 
-    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode = :#{#search.categoryId}) and p.seller_id like %:#{#search.keyword}% and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")
+    @Query("select p from Product p left join p.productCategory pc where (pc.cateCode = :#{#search.categoryId} or pc.cateParent.cateCode = :#{#search.categoryId}) and p.member.id like %:#{#search.keyword}% and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")
     Page<Product> findByCategoryIdAndWriterContainingAndDiscountRate(@Param("search") SearchDTO search, Pageable pageable, @Param("rate") double rate);
 
 
