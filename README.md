@@ -1,6 +1,9 @@
 # practice-web
 
-![펫볼](https://github.com/me1kara/practice-web/assets/111833798/9e234f84-7c55-44a6-951e-0a7b63b2aed2)
+![메인화면(상단)](https://github.com/me1kara/practice-web/assets/111833798/bbee7e16-792e-415c-a748-aea5257b69dd)
+![로그인 폼(실패)](https://github.com/me1kara/practice-web/assets/111833798/ab78b97e-84fa-4c89-b069-10bec3cf7855)
+![고객상담게시판 메인화면](https://github.com/me1kara/practice-web/assets/111833798/5379514e-aa77-459c-9296-44920a9545f4)
+![쇼핑게시판(카테고리선택)](https://github.com/me1kara/practice-web/assets/111833798/0f586462-8d4d-4b33-9d32-9831af7fc623)
 
 
 개인연습용으로 만든 쇼핑몰입니다.
