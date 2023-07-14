@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,7 @@ import test.testspring.domain.Product;
 import test.testspring.service.HelpService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,9 +82,25 @@ public class HelpController {
         HelpBoard helpBoard = helpService.viewQuestionContent(id);
         HelpBoardDTO hd = new HelpBoardDTO(helpBoard);
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 현재 사용자의 모든 권한 확인
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        // 특정 권한이 있는지 확인
+        boolean isAdmin = authorities.stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+            // 특정 권한에 따라 동작 수행
+        if (isAdmin || helpBoard.getId().equals(authentication.getName())) {
+            // 댓글쓰기 권한이 있는 경우(관리자 or 본인)
+            model.addAttribute("replyRight", true);
+        }
+
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         String jsonInString = mapper.writeValueAsString(hd);
+
+        System.out.println(jsonInString);
+
         model.addAttribute("help",jsonInString);
         model.addAttribute("top",top);
 

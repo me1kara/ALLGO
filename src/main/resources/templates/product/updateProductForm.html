@@ -13,13 +13,17 @@
     <title>타이틀</title>
 
     <script th:inline="javascript">
-
             let cateList;
+            var imgChanged = false;
 
             $(document).ready(function(){
                 cateList = [[${cateList}]];
                 let category1 = $('#category1');
                 let category2 = $('#category2');
+
+                let cateParent = [[${cateParent}]];
+                let cateCode = [[${cateCode}]];
+
 
                 let count = 0;
                 for (let i = 0; i < cateList.length; i++) {
@@ -43,36 +47,67 @@
                                 cateList.forEach(cate => {
                                     if(cate.categoryId==val){
                                         cate.children.forEach(element => {
-                                        $("#category2").append('<option value="' + element.categoryId + '">' + element.categoryName + '</option>');
+                                        $("#category2").append('<option id="'+element.categoryId+'" value="' + element.categoryId + '">' + element.categoryName + '</option>');
                                     });
                                     }
                                 });
 
                             })
                         }
-
-                        
                         category1.append(optionDIV);
                     }
 
             }
-          });
+            
+            category1.val(cateParent).prop('selected',true);
+            category2.val(cateCode).prop('selected',true);
 
-          function setThumbnail(event) {
+
+            
+        });
+
+            // 이미지 삭제 버튼 클릭 이벤트 핸들러
+        $(document).on('click', '.delete-image', function () {
+            var imageId = $(this).data('image-id');
+            // 해당 이미지 항목 제거
+            $(this).closest('.image-item').remove();
+            // 이미지 삭제 플래그 설정 (서버로 전송 시 삭제할 이미지를 식별하기 위해 사용)
+            imgChanged = true;
+            // TODO: 서버에서 해당 이미지를 삭제하는 로직 추가
+        });
+
+        function setThumbnail(event) {
+            imgChanged = true;
+
+            $('#image_container').empty();
+          
             for (var image of event.target.files) {
               var reader = new FileReader();
 
-              reader.onload = function(event) {               
-                var img = document.createElement("img");
-                img.setAttribute("src", event.target.result);
-                img.className = 'prevImg';
-                document.querySelector("div#image_container").appendChild(img);
+              reader.onload = function(event) {    
+                console.log(event);           
+                var newImageItem = $('<div class="image-item">' +
+                '<picture>' +
+                '<source class="prevImg" srcset="'+event.target.result+'" type="image/webp">' +
+                '<source class="prevImg" srcset="'+event.target.result+'" type="image/jpeg">' +
+                '<img src="https://via.placeholder.com/150" alt="샘플이미지" width="121px" height="121px">' +
+                '</picture>' +
+                '</div>'         
+                );
+                // 이미지 컨테이너에 새로운 이미지 항목 추가
+                $('#image_container').append(newImageItem);
               };
-
-              console.log(image);
               reader.readAsDataURL(image);
             }
           }
+
+       function checkFiles(){
+            if (!imageChanged) {
+            // 이미지를 변경하지 않았으므로 이미지 데이터를 제거
+            document.getElementById('file').value = '';
+            }
+          
+        }
 
     </script>
 
@@ -140,8 +175,8 @@ select {
 }
 
 .prevImg{
-  width: 50px;
-  height: 50px;
+  width: 121px;
+  height: 121px;
 }
 
     </style>
@@ -149,7 +184,7 @@ select {
 <body>
 <div layout:fragment="content">
     <section>
-        <form th:action="@{/product/addProduct}" id="addProductForm" method="post" class="container" enctype="multipart/form-data">
+        <form th:action="@{/product/updateProduct}" id="addProductForm" method="post" class="container" enctype="multipart/form-data" onsubmit="checkFiles();">
 
             <label for="category1" class="form-label">카테고리</label><br>
             <div id="categories" class="mb-3">
@@ -162,22 +197,30 @@ select {
             </div>
 
             <label for="title" class="form-label">제목</label><br>
-            <input type="text" id="title" name="product_name" class="form-control"><br>
+            <input type="text" id="title" name="product_name" class="form-control" th:value="${product.product_name}"><br>
 
             <label for="title" class="form-label">수량</label><br>
-            <input type="number" id="amount" name="amount" class="form-control"><br>
+            <input type="number" id="amount" name="amount" class="form-control" th:value="${product.amount}"><br>
 
             <label for="title" class="form-label">가격</label><br>
-            <input type="number" id="price" name="price" class="form-control"><br>
+            <input type="number" id="price" name="price" class="form-control" th:value="${product.price}"><br>
 
-            <label for="content" class="form-label">내용</label><br>
-            <textarea id="content" name="product_content" class="form-control"></textarea><br>
-            
+            <label for="content" class="form-labehl">내용</label><br>
+            <textarea id="content" name="product_content" class="form-control" th:text="${product.product_content}"></textarea><br>
             <div class="text-center">
-                <input type="file" multiple="multiple" id="file" name="files" class="form-control-file mb-3" onchange="setThumbnail(event);" accept="image/*">
-                <input type="submit" value="작성하기" class="btn">
+                  <input type="file" multiple="multiple" id="file" name="files" class="form-control-file mb-3" accept="image/*" onchange="setThumbnail(event);">
+                  <input type="submit" value="변경" class="btn">
             </div>
-            <div id="image_container"></div>
+            <input type="hidden" name="product_no" th:value="${product.product_no}">
+            <div id="image_container">
+              <picture th:each="img, imgStat : ${product.productImgs}">
+                <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp">
+                <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg">
+                <div class="image-item">
+                    <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="121px" height="121px">
+                </div>
+              </picture>
+            </div>
         </form>
 
     </section>

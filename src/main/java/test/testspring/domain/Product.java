@@ -38,8 +38,8 @@ public class Product {
     @JoinColumn(name = "card_id")
     private Card card;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
-    private final List<ProductImg> productImgs = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductImg> productImgs = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name="cate_code")

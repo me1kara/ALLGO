@@ -132,7 +132,27 @@ input {
       
       $(document).ready(function(){
 
+        let result = getParam('result');
+        
+        if(result=='failUpdate'){
+          alert('수정에 실패했습니다');
+        }else if(result=='failDelete'){
+          alert('삭제에 실패했습니다');
+        }
       })
+
+        function getParam(param){
+            let includeParam = location.search.includes(param);
+            let data = '';
+            if (includeParam) {
+                // 'date' 파라미터가 이미 URL에 있는 경우
+                const searchParams = new URLSearchParams(location.search);
+                const value = searchParams.get(param);
+                data = value;
+            }
+
+            return data;
+        }
 
         function checkAmountArea(input) {
             let data = Number(input.value);
@@ -205,17 +225,21 @@ input {
 <body>
 <div layout:fragment="content">
     <main>
+        <div th:if="${authority}">
+          <a class="btn btn-sm btn-outline-secondary" th:href="@{/product/updateProductForm(productNo=${product.product_no})}">수정</a>
+          <a class="btn btn-sm btn-outline-danger" th:href="@{/product/deleteProductForm(productNo=${product.product_no})}">삭제</a>
+        </div>
         <div class="product">
+          <div style="display: flex;">
+            <h1 class="product-name" style="position: relative; top:7px;" th:text="${product.product_name}">상품명</h1>
+            <button sec:authorize="isAuthenticated()" th:text="${heart}" class="btn" id="favorite" onclick="favorite()">♡</button>
+          </div>
           <div class="product-images" th:each="img:${product.productImgs}" th:if="${product.productImgs}">
             <picture th:each="img : ${product.productImgs}">
               <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="121px" height="121px">
               <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg">
               <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="121px" height="121px">
-            </picture>         
-          </div>
-          <div style="display: flex;">
-            <h1 class="product-name" style="position: relative; top:7px;" th:text="${product.product_name}">상품명</h1>
-            <button sec:authorize="isAuthenticated()" th:text="${heart}" class="btn" id="favorite" onclick="favorite()">♡</button>
+            </picture>
           </div>
           <div class="product-content">
             <p class="product-description" th:text="${product.product_content}">상품 설명</p>

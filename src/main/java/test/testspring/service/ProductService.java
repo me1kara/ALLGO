@@ -15,13 +15,18 @@ import test.testspring.domain.*;
 import test.testspring.repository.*;
 
 import javax.servlet.ServletContext;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
 @Slf4j
+@Transactional
 public class ProductService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
@@ -234,11 +239,75 @@ public class ProductService {
 
     public void addProduct(Product product, List<MultipartFile> multipartFiles) throws IOException {
         Product saveProduct = productRepository.save(product);
-        List<ProductImg> fileList = new ArrayList<>();
+        List<ProductImg> images = uploadFile(saveProduct,multipartFiles);
+        saveProduct.setProductImgs(images);
+        productRepository.save(saveProduct);
+    }
 
-        // 파일이 빈 것이 들어오면 빈 것을 반환
+    // 파일명으로부터 확장자 추출
+    private String extractExtension(String filename) {
+        int lastIndex = filename.lastIndexOf(".");
+        if (lastIndex >= 0) {
+            return filename.substring(lastIndex);
+        }
+        return "";
+    }
+
+    // 이미지 파일 여부 확인
+    private boolean isImageFile(String extension) {
+        return extension.equalsIgnoreCase(".jpg")
+                || extension.equalsIgnoreCase(".jpeg")
+                || extension.equalsIgnoreCase(".png")
+                || extension.equalsIgnoreCase(".gif");
+    }
+
+
+
+
+    public boolean deleteProduct(Long productNo) {
+
+        productRepository.deleteById(productNo);
+        Optional<Product> productWrap = productRepository.findById(productNo);
+
+        if(productWrap.isEmpty()){
+            return true;
+        }else return false;
+
+    }
+
+    public boolean updateProduct(Product product, List<MultipartFile> multipartFiles) throws IOException {
+            List<ProductImg> images = new ArrayList<ProductImg>();
+            if (!multipartFiles.isEmpty()) {
+                List<ProductImg> originImages = productImgRepository.findAllByPid(product.getProduct_no());
+                //기존이미지 삭제
+                if(!originImages.isEmpty()){
+                    originImages.forEach(productImg -> {
+                        try {
+                            String url = fileUploadPath+"/"+productImg.getUrl();
+                            Path path = Paths.get(url);
+                            Files.delete(path);
+                        } catch (IOException e) {
+
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                productImgRepository.deleteAll(originImages);
+                //새이미지 업로드
+                images = uploadFile(product, multipartFiles);
+            }
+            product.setProductImgs(images);
+            productRepository.save(product);
+
+            return true;
+    }
+
+    private List<ProductImg> uploadFile(Product saveProduct, List<MultipartFile> multipartFiles) throws IOException {
+
+        List<ProductImg> result = new ArrayList<ProductImg>();
+
         if (multipartFiles.isEmpty()) {
-            // 예외 처리 또는 필요한 로직 추가
+
         } else {
             for (MultipartFile multipartFile : multipartFiles) {
                 // 파일이 비어 있지 않을 때 작업을 시작해야 오류가 나지 않는다
@@ -268,27 +337,13 @@ public class ProductService {
                             .url(storeFilename)
                             .product(saveProduct)
                             .build();
-                    productImgRepository.save((productImg));
+                    result.add(productImg);
                 }
             }
+
         }
+        return result;
     }
 
-    // 파일명으로부터 확장자 추출
-    private String extractExtension(String filename) {
-        int lastIndex = filename.lastIndexOf(".");
-        if (lastIndex >= 0) {
-            return filename.substring(lastIndex);
-        }
-        return "";
-    }
-
-    // 이미지 파일 여부 확인
-    private boolean isImageFile(String extension) {
-        return extension.equalsIgnoreCase(".jpg")
-                || extension.equalsIgnoreCase(".jpeg")
-                || extension.equalsIgnoreCase(".png")
-                || extension.equalsIgnoreCase(".gif");
-    }
 }
 
