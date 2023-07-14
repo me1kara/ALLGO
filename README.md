@@ -1,8 +1,6 @@
 # practice-web
 
-![amigoLogo](https://user-images.githubusercontent.com/111833798/230321286-a28c612d-0957-4e3a-b963-ad485064a980.png)
-
-
+![펫볼](https://github.com/me1kara/practice-web/assets/111833798/9e234f84-7c55-44a6-951e-0a7b63b2aed2)
 
 
 개인연습용으로 만든 쇼핑몰입니다.
