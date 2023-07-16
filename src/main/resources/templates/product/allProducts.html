@@ -83,24 +83,62 @@
             let allEl = document.createElement('div');
             allEl.innerHTML = '<div class="cate_warp"><span><a href="/product/shopping" class="ld">ALL</a></span></div>';
             cteL.appendChild(allEl);
+            let cateId = getParam('categoryId');
+
+            console.log(cateId);
+            
             for (let i = 0; i < cateList.length; i++) {
-                if(cateList[i].tier=='1'){
+                if (cateList[i].tier == '1') {
                     let div = document.createElement('div');
                     let temp = '';
-                    temp+='<div class="cate_warp">';
-                    temp+='<span onclick="showSub(this);">'+cateList[i].categoryName+'</span>';
-                    temp+='<ul class="cate-sub">';
-                    temp+='<li><a href="/product/shopping?categoryId='+cateList[i].categoryId+'"> ALL</a></li>';
+                    temp += '<div class="cate_warp">';
+                    temp += '<span onclick="showSub(this);">' + cateList[i].categoryName + '</span>';
+                    temp += '<ul class="cate-sub" data-cateParent="' + cateList[i].categoryId + '">';
+                    temp += '<li><a href="/product/shopping?categoryId=' + cateList[i].categoryId + '"> ALL</a></li>';
                     cateList[i].children.forEach(element => {
-                        temp += '<li><a href="/product/shopping?categoryId=' + element.categoryId + '">' + element.categoryName + '</a></li>';
+                        temp += '<li><a href="/product/shopping?categoryId=' + element.categoryId + '" data-categoryId="' + element.categoryId + '">' + element.categoryName + '</a></li>';
                     });
-                    temp+='</ul>';
-                    temp+='</div>';
-                    div.innerHTML = temp;                  
+                    temp += '</ul>';
+                    temp += '</div>';
+                    div.innerHTML = temp;
                     cteL.appendChild(div);
                 }
             }
+
+            if (cateId) {
+                let parent = document.querySelector('ul[data-cateParent="' + cateId + '"]');
+                let child = document.querySelector('a[data-categoryId="' + cateId + '"]');
+                if (parent) {
+                    parent.style.display = 'block';
+                    let allChild = parent.querySelector('li:first-child a');
+                    if (allChild) {
+                        allChild.textContent = 'ALL';
+                        allChild.style.color = 'red';
+                    }
+                } else if (child) {
+                    console.log(child);
+                    let parentDiv = child.closest('.cate-sub');
+                    if (parentDiv) {
+                        parentDiv.style.display = 'block';
+                        child.style.color = 'red';
+                    }
+                }
+            }
+
+
         });
+        function getParam(param){
+            let includeParam = location.search.includes(param);
+            let data = '';
+            if (includeParam) {
+                // 'date' 파라미터가 이미 URL에 있는 경우
+                const searchParams = new URLSearchParams(location.search);
+                const value = searchParams.get(param);
+                data = value;
+            }
+
+            return data;
+        }
     </script>
 
 </head>
