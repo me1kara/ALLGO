@@ -3,7 +3,7 @@
 ![메인화면(상단)](https://github.com/me1kara/practice-web/assets/111833798/bbee7e16-792e-415c-a748-aea5257b69dd)
 ![로그인 폼(실패)](https://github.com/me1kara/practice-web/assets/111833798/ab78b97e-84fa-4c89-b069-10bec3cf7855)
 ![고객상담게시판 메인화면](https://github.com/me1kara/practice-web/assets/111833798/5379514e-aa77-459c-9296-44920a9545f4)
-![카테고리](https://github.com/me1kara/practice-web/assets/111833798/067e2ef7-8403-440b-887f-bd877362b65f)
+![Uploading 카테고리.jpg…]()
 
 
 포폴용으로 만든 쇼핑몰입니다.
