@@ -1,4 +1,4 @@
-# practice-web
+# Allgo
 
 ![메인화면(상단)](https://github.com/me1kara/practice-web/assets/111833798/bbee7e16-792e-415c-a748-aea5257b69dd)
 ![로그인 폼(실패)](https://github.com/me1kara/practice-web/assets/111833798/ab78b97e-84fa-4c89-b069-10bec3cf7855)
