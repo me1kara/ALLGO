@@ -107,7 +107,7 @@ public class ProductService {
     }
 
     public List<Order> getOrderList(String id) {
-        return orderRepository.findAllbyIdTo2Week(id);
+        return orderRepository.findAllbyId(id);
     }
 
     public List<ProductCategory> getCateCode() {

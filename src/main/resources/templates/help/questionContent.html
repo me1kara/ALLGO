@@ -81,7 +81,6 @@
                 $('#board_writer').text(help.member.name);
                 $('#board_content').text(help.content);
                 $('#boardId').val(help.id);
-
             }
             $(document).on('click', '.comment .content', function() {
             if(right!=null){
@@ -267,7 +266,13 @@
 <div layout:fragment="content">
     <section id="boardSet" class="container">
         <article id="board">
+          <div class="d-flex">
             <div id="board_title"></div>
+            <div th:if="${right}" style="text-align: right;">
+              <a th:href="@{/help/modify(id=${helpId})}"class="btn btn-sm btn-outline-success">수정</a>
+              <a th:href="@{/help/delete(id=${helpId})}" class="btn btn-sm btn-outline-danger">삭제</a>
+            </div>
+          </div>
             <div id="board_writer"></div>
             <div id="board_content"></div>
         </article>

@@ -59,6 +59,9 @@
                         </div>
                   </ul>
             </article>
+            <div sec:authorize="isAuthenticated()" style="text-align: right;">
+                  <a th:href="@{/help/write}"class="btn btn-sm btn-secondary opacity-75">질문하기</a>
+            </div>
       </section>
 </div>
 </body>

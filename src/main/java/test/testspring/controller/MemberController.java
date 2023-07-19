@@ -192,9 +192,20 @@ public class MemberController {
                 model.addAttribute("orderList", orderList);
                 break;
         }
-
-        System.out.println("확인용마이페이지");
         return "member/myPage";
+    }
+
+
+    @GetMapping("/myInformationList")
+    public String getMyInformationList(Model model){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        Member member = memberService.findById(id);
+        model.addAttribute("member",member);
+
+        return "member/myInformationList";
     }
 
 

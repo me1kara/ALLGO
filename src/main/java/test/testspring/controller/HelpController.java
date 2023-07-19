@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import groovyjarjarpicocli.CommandLine;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import test.testspring.DTO.CategoryDto;
 import test.testspring.DTO.HelpBoardDTO;
 import test.testspring.DTO.SearchDTO;
@@ -63,6 +65,47 @@ public class HelpController {
 
 
 
+    @GetMapping("/write")
+    public String insertHelp(){
+        return "/help/writeForm";
+    }
+    @PostMapping("/write")
+    public String insertHelp(HelpBoard help){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+        help.setResolved(true);
+        helpService.insertHelp(id,help);
+        return "redirect:/help/questionList";
+    }
+
+    @GetMapping("/modify")
+    public String modifyHelp(Model model, Long id){
+        HelpBoard helpBoard = helpService.findOne(id);
+        model.addAttribute("help",helpBoard);
+        return "/help/modifyForm";
+    }
+
+    @PostMapping("/modify")
+    public String modifyHelp(HelpBoard helpBoard){
+        helpService.modifyHelp(helpBoard);
+        Long id = helpBoard.getId();
+
+        return "redirect:/help/questionContent?id="+id;
+    }
+
+    @GetMapping("/delete")
+    public String deleteHelp(Model model, Long id){
+        model.addAttribute("deleteNo",id);
+        return "/help/deleteForm";
+    }
+
+    @PostMapping("/delete")
+    public String deleteHelp(Long deleteNo){
+        helpService.deleteHelp(deleteNo);
+        return "redirect:/help/questionList";
+    }
+
+
 
     @GetMapping("/questionList")
     public String viewQuestionList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
@@ -89,7 +132,8 @@ public class HelpController {
         boolean isAdmin = authorities.stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
             // 특정 권한에 따라 동작 수행
-        if (isAdmin || helpBoard.getId().equals(authentication.getName())) {
+
+        if (isAdmin || helpBoard.getMember().getId().equals(authentication.getName())) {
             // 댓글쓰기 권한이 있는 경우(관리자 or 본인)
             model.addAttribute("replyRight", true);
         }
@@ -98,10 +142,13 @@ public class HelpController {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         String jsonInString = mapper.writeValueAsString(hd);
-
-        System.out.println(jsonInString);
-
         model.addAttribute("help",jsonInString);
+        model.addAttribute("helpId",id);
+        if(authentication.getName()!=null){
+            if(helpBoard.getMember().getId().equals(authentication.getName())){
+                model.addAttribute("right",true);
+            }
+        }
         model.addAttribute("top",top);
 
         return "/help/questionContent";

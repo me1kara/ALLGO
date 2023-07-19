@@ -97,7 +97,7 @@ public class ProductController {
 
     @RequestMapping("/ranking")
     public String showProductRanking(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
-                                     @RequestParam(value = "size",defaultValue = "9",required = false) int size,
+                                     @RequestParam(value = "size",defaultValue = "10",required = false) int size,
                                      @RequestParam(required = false) Long categoryId,
                                      @RequestParam(required = false) String date,
                                      Model model) throws JsonProcessingException {
@@ -220,6 +220,8 @@ public class ProductController {
         Member member = memberService.findById(id);
         List<Card> cards = member.getCards();
         product.setAmount(amount);
+
+
         model.addAttribute("product",product);
         model.addAttribute("delivery_price",3000);
         model.addAttribute("cards",cards);
@@ -246,6 +248,7 @@ public class ProductController {
         Member member= memberService.findById(userId);
         product.setMember(member);
         product.setCard(member.getCards().get(1));
+
 
         productService.addProduct(product, files);
 

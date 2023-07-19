@@ -49,6 +49,7 @@ public class EmailService {
         return message;
     }
 
+    //랜덤문자 생성
     public static String createKey() {
         StringBuffer key = new StringBuffer();
         Random rnd = new Random();

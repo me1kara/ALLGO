@@ -23,8 +23,6 @@ public class Product {
     private BigDecimal price;
     private Float discount_rate;
     private Integer amount;
-
-
     @Column(name="registration_at")
     private LocalDateTime registration_at;
 

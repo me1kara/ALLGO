@@ -19,41 +19,31 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @Column(name="imp_uid")
     private String imp_uid;
     @Column(name="merchant_uid")
     private String merchant_uid;
-    @Column(name = "seller_id")
-    private String seller_id;
-    @Column(name = "buyer_id")
-    private String buyer_id;
-    @Column(name = "product_no")
-    private Long product_no;
-
     @Column(name = "trade_amount")
     private int trade_amount;
-
     @Column(name = "total_price")
     private BigDecimal total_price;
-
     @Column(name = "payment_at")
-    private LocalDateTime payment_at;
-
+    @Builder.Default
+    private LocalDateTime payment_at = LocalDateTime.now();
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", insertable = false, updatable = false)
+    @JoinColumn(name = "seller_id")
     private Member seller;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", insertable = false, updatable = false)
+    @JoinColumn(name = "buyer_id")
     private Member buyer;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_no", insertable = false, updatable = false)
+    @JoinColumn(name = "product_no")
     private Product product;
-
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name="card_id")
+//    private Card card;
 
 }

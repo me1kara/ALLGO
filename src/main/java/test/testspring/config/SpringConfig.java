@@ -46,6 +46,7 @@ public class SpringConfig {
     }
 */
 
+    //mail sender api 이용을 위한 변수 설정, properties에서 가져옴
     @Value("${mail.smtp.port}")
     private int port;
     @Value("${mail.smtp.socketFactory.port}")

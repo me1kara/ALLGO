@@ -20,24 +20,30 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 
+//시큐리티 설정정하기
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+
         http
                 .authorizeRequests((requests) -> requests
+                        // admin 페이지의 접속시 접속권한 admin 필요
                         .antMatchers("/admin/**").hasRole("ADMIN")
+                        //상품 구입 위해선 로그인 필요
                         .antMatchers("/product/buyProduct").authenticated()
+                        //나머지는 허용
                         .anyRequest().permitAll()
                 )
-
+                //로그인 폼 핸들링, 인증권한 필요한 경로로 접속
                 .formLogin((form) -> form
                         .loginPage("/member/login")
                         .loginProcessingUrl("/member/login")
+                        //id와 password를 요구
                         .usernameParameter("id")
                         .passwordParameter("password")
                         .failureHandler( // 로그인 실패 후 핸들러
@@ -49,6 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 })
                         .permitAll()
                 )
+
                 .logout((logout) -> logout
                         .logoutUrl("/member/logout") // 로그아웃 URL 설정
                         .logoutSuccessUrl("/") // 로그아웃 후 리다이렉트할 URL
@@ -56,16 +63,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 );
     }
 
+    //로그인 시 id와 password 유효한지 확인
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth)
             throws Exception {
 
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
+                //입력한 비밀번호를 암호화해서 전달
                .passwordEncoder(passwordEncoder())
+                //id password 확인
                 .usersByUsernameQuery("select id,password,enabled "
                         + "from member "
                         + "where id = ?")
+                //권한 조회
                 .authoritiesByUsernameQuery("select m.id, r.name "
                         + "from member_role mr inner join member m on mr.member_id = m.id "
                         + "inner join role r on mr.role_id = r.id "
@@ -73,12 +84,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+
+    //인코더 방식을 빈을 통해 주입받음
     @Autowired
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 
 
 }

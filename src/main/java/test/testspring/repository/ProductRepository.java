@@ -73,7 +73,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE created_at >= :date " +
             "GROUP BY product_no" +
             ") f ON p.product_no = f.product_no " +
-            "ORDER BY f.favorite_count DESC", nativeQuery = true)
+            "ORDER BY f.favorite_count DESC",
+            countQuery = "SELECT count(*) " +
+                    "FROM product p " +
+                    "LEFT JOIN (" +
+                    "SELECT product_no, COUNT(product_no) as favorite_count " +
+                    "FROM favorite " +
+                    "WHERE created_at >= :date " +
+                    "GROUP BY product_no" +
+                    ") f ON p.product_no = f.product_no",
+            nativeQuery = true)
     Page<Product> findAllByCreatedAtIsAfterOrderByFavorite(@Param("date") Date date, Pageable pageRequest);
 
 
@@ -85,8 +94,20 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE created_at >= :date " +
             "GROUP BY product_no" +
             ") f ON p.product_no = f.product_no " +
-            "LEFT JOIN product_category pc ON p.cate_code = pc.cate_code where pc.cate_code = :categoryId or pc.cate_parent = :categoryId " +
-            "ORDER BY f.favorite_count DESC",nativeQuery = true)
+            "LEFT JOIN product_category pc ON p.cate_code = pc.cate_code " +
+            "WHERE pc.cate_code = :categoryId OR pc.cate_parent = :categoryId " +
+            "ORDER BY f.favorite_count DESC",
+            countQuery = "SELECT count(*) " +
+                    "FROM product p " +
+                    "LEFT JOIN (" +
+                    "SELECT product_no, COUNT(product_no) as favorite_count " +
+                    "FROM favorite " +
+                    "WHERE created_at >= :date " +
+                    "GROUP BY product_no" +
+                    ") f ON p.product_no = f.product_no " +
+                    "LEFT JOIN product_category pc ON p.cate_code = pc.cate_code " +
+                    "WHERE pc.cate_code = :categoryId OR pc.cate_parent = :categoryId",
+            nativeQuery = true)
     Page<Product> findAllByCategoryIdAndCreatedAtIsAfterOrderByFavorite(
             @Param("categoryId") Long categoryId,
             @Param("date") Date date,
@@ -139,7 +160,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByCategoryIdAndWriterContainingAndDiscountRate(@Param("search") SearchDTO search, Pageable pageable, @Param("rate") double rate);
 
 
-
+    @Query("update Product p set p.amount = p.amount-1 where p.product_no = :productNo")
+    @Modifying
+    int decreaseAmountOneByProductNo(@Param("productNo") Long productNo);
 
 
 //    @Modifying

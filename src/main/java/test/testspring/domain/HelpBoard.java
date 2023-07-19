@@ -23,12 +23,11 @@ public class HelpBoard {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = true)
     private LocalDateTime createdAt;
-
     private boolean resolved;
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Member member;
 
     @OneToMany(mappedBy = "helpBoard", cascade = CascadeType.ALL)

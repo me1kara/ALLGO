@@ -97,6 +97,8 @@ public class MemberService implements UserDetailsService {
     }
 
     public String sendToPhone(String phone) {
+
+        //랜덤문자 생성(4글자)
         Random rand = new Random();
         String numStr = "";
         for (int i = 0; i < 4; i++) {
@@ -104,8 +106,10 @@ public class MemberService implements UserDetailsService {
             numStr += ran;
         }
 
+        //api key
         Message coolsms = new Message(COOL_KEY, COOL_SECRETKEY);
 
+        //전송방식에 맞게 hashmap 방식으로 메세지 포장(휴대폰에 전달됨)
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("to", phone); // 수신
         params.put("from", phone); // 발신
@@ -114,12 +118,14 @@ public class MemberService implements UserDetailsService {
         //arams.put("app_version", "test app 2.2"); // application name and version
 
         try {
+            //api를 통한 문자 쩐송
             JSONObject obj = (JSONObject) coolsms.send(params);
-            System.out.println(obj.toString());
         } catch (CoolsmsException e) {
             System.out.println(e.getMessage());
             System.out.println(e.getCode());
         }
+
+        // 인즈확인을 위한 요구문자 반환
         return numStr;
     }
     public void modifyPw(String id, String password) {
@@ -132,6 +138,6 @@ public class MemberService implements UserDetailsService {
     }
 
     public Member findById(String id) {
-        return memberRepository.findById(id).orElse(Member.builder().build());
+        return memberRepository.findById(id).get();
     }
 }
