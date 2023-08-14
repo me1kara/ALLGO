@@ -3,6 +3,7 @@ package test.testspring.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import test.testspring.domain.Cart;
 import test.testspring.domain.Member;
 import test.testspring.domain.Order;
+import test.testspring.security.MemberDetailService;
 import test.testspring.service.EmailService;
 import test.testspring.service.MemberService;
 import test.testspring.service.ProductService;
@@ -25,6 +27,9 @@ import java.util.Optional;
 @RequestMapping("/member")
 public class MemberController {
     private final MemberService memberService;
+
+    @Autowired
+    private MemberDetailService memberDetailService;
     private final ProductService productService;
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -42,6 +47,7 @@ public class MemberController {
     //로그인시
     @GetMapping("/login")
     public String login(){
+
         return "login/loginForm";
     }
     @PostMapping("/login")
@@ -165,6 +171,8 @@ public class MemberController {
             throw new IllegalArgumentException("이메일, 휴대폰 번호 둘다 주어지지 않았습니다.");
         }
 
+        System.out.println("확인용");
+        
         return "login/findAndSet";
     }
 
@@ -182,6 +190,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
+        if(item==null)item="cart";
         switch(item){
             case "cart" :
                 List<Cart> cartList =  productService.getCartList(id);
@@ -208,6 +217,112 @@ public class MemberController {
         return "member/myInformationList";
     }
 
+
+    @PostMapping("/modifyAddress")
+    @ResponseBody
+    public String modifyAddress(@RequestParam("address") String address, @RequestParam("address2") String address2){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        StringBuilder addressResult = new StringBuilder();
+        addressResult.append(address).append(" ").append(address2);
+        memberService.modifyAddress(addressResult.toString(),id);
+
+        return "ok";
+    }
+    @PostMapping("/modifyEmail")
+    @ResponseBody
+    public String modifyEmail(@RequestParam("email") String email){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+
+        memberService.modifyEmail(id,email);
+
+        return "ok";
+    }
+    @PostMapping("/modifyPhone")
+    @ResponseBody
+    public String modifyPhone(@RequestParam("phone") String phone){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+
+        memberService.modifyPhone(id,phone);
+        return "ok";
+    }
+    @PostMapping("/modifyPassword")
+    @ResponseBody
+    public String modifyPassword(String password, String originPassword){
+        // 현재 로그인된 사용자의 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        boolean res = memberService.modifyPassword(id,password,originPassword);
+        if(res){
+            return "ok";
+        }else {
+            return "false";
+        }
+    }
+
+    @GetMapping("/modifyAddress")
+    public String modifyAddress(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        Member member = memberService.findById(id);
+        model.addAttribute("address",member.getAddress());
+        return "/member/modifyForm";
+    }
+    @GetMapping("/modifyPhone")
+    public String modifyPhone(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        Member member = memberService.findById(id);
+        model.addAttribute("phone",member.getPhone());
+
+        return "/member/modifyForm";
+    }
+    @GetMapping("/modifyEmail")
+    public String modifyEmailForm(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        Member member = memberService.findById(id);
+        model.addAttribute("email",member.getEmail());
+
+
+        return "/member/modifyForm";
+    }
+    @GetMapping("/modifyPassword")
+    public String modifyPasswordForm(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // 사용자의 로그인 ID 가져오기
+        String id = authentication.getName();
+        Member member = memberService.findById(id);
+        model.addAttribute("password",member.getPassword());
+        return "/member/modifyForm";
+    }
+
+
+
+
+    //비번 분실시 고치는용도
+    @GetMapping("/resetPass")
+    public String testAllModify(String name){
+
+        String pass = passwordEncoder.encode("12345");
+        Member member = memberService.findById(name);
+        member.setPassword(pass);
+
+        memberService.modifyAll(member);
+        return "redirect:/";
+    }
 
 
 

@@ -20,15 +20,13 @@
     <script th:inline="javascript">
 
         var Imp;
-        var header;
-        var token;
+        var header = $("meta[name='_csrf_header']").attr('content');
+        var token = $("meta[name='_csrf']").attr('content');
 
         $(document).ready(function(){
             let item = getParam('item');
             $('#'+item).css('background-color','#ECECEC');
             Imp = window.IMP;
-            header = $("meta[name='_csrf_header']").attr('content');
-            token = $("meta[name='_csrf']").attr('content');
         })
         function selectAll(selectAll)  {
           const checkboxes = document.getElementsByName('product');
@@ -52,26 +50,35 @@
         function cancelOrder() {
           let confirmation = confirm('정말로 취소하시겠습니까?');
           if (confirmation) {
-            const checkboxes = document.getElementsByName('product');
+            let checkboxes = document.getElementsByName('product');
             let cnoList = [];
             let j = 0;
             checkboxes.forEach((checkbox) => {
               if (checkbox.checked) {
-                cnoList[j] = checkbox.nextElementSibling.value;
+                if(cnoList[j]!='' || cnoList[j]!=null){
+                  cnoList[j] = checkbox.nextElementSibling.value;
+                  alert(cnoList[j]);
+                }
                 j++;
               }
             });
-            $.ajax({
-              url: '/product/cancelCart',
-              type: 'post',
-              data: { cnoList: cnoList },
-              success: function (res) {
-                window.location.reload();
-              },
-              error: function (err) {
-                alert('취소에 실패하였습니다!');
-              }
-            });
+            if(cnoList.length!=0){
+              $.ajax({
+                url: '/product/cancelCart',
+                type: 'post',
+                data: { cnoList: cnoList },
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (res) {
+                  alert('성공!');
+                  window.location.reload(true);
+                },
+                error: function (err) {
+                  alert('취소에 실패하였습니다!');
+                }
+              });
+            }else alert('체크해주세요!');
           }
         }
         function payment(element) {
@@ -105,9 +112,7 @@
                 cid: cid,
               }
               // callback
-              console.log(rsp);
               Object.assign(rsp, data);
-              console.log(rsp);
 
               //백단에 내용전달
               $.ajax({
@@ -124,6 +129,7 @@
                   let process_result = result.process_result.split(":");
                   if (process_result[0] == '결제성공') {
                     alert('결제성공!');
+                    window.location.href.reload(true);
                   } else {
                     alert(process_result[1]);
                   }

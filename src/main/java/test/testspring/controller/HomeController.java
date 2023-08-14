@@ -23,9 +23,7 @@ public class HomeController {
     @RequestMapping("/")
     public String home(Model model){
         List<Product> products = productService.getMainProduct();
-
         model.addAttribute("products",products);
-
         return "home";
     }
 

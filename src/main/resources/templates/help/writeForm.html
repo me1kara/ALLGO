@@ -12,22 +12,7 @@
     <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
     <title>타이틀</title>
     
-    <script>        
-    
-    function setThumbnail(event) {
-      for (var image of event.target.files) {
-        var reader = new FileReader();
 
-        reader.onload = function(event) {               
-          var img = document.createElement("img");
-          img.setAttribute("src", event.target.result);
-          img.className = 'prevImg';
-          $("div#image_container").empty().append(img);
-        };
-        reader.readAsDataURL(image);
-      }
-    }
-</script>
 <style>
   /* 폼 전체 스타일 */
 #writeForm {

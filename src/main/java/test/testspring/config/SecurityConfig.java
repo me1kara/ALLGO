@@ -1,18 +1,16 @@
 package test.testspring.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import test.testspring.security.MemberDetailService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +24,13 @@ import java.io.IOException;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
+
+    private final MemberDetailService memberDetailService;
+
+    public SecurityConfig(MemberDetailService memberDetailService) {
+        this.memberDetailService = memberDetailService;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -64,6 +69,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     //로그인 시 id와 password 유효한지 확인
+
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth)
             throws Exception {
@@ -84,7 +91,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(memberDetailService).passwordEncoder(passwordEncoder());
+//    }
     //인코더 방식을 빈을 통해 주입받음
     @Autowired
     public PasswordEncoder passwordEncoder() {

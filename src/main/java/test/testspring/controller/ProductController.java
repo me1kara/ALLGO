@@ -283,6 +283,8 @@ public class ProductController {
     @PostMapping("/cancelCart")
     @ResponseBody
     public ResponseEntity<String> cancelCart(@RequestParam("cnoList") List<Long> cnoList) {
+
+        System.out.println(cnoList.size());
         productService.cancelCart(cnoList);
         // 예시로 성공적으로 취소되었다고 가정하고 OK 응답을 반환
         return ResponseEntity.ok("취소되었습니다.");

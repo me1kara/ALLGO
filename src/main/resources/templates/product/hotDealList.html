@@ -76,7 +76,20 @@
                 list[i].style.display = 'none';
             }
             e.nextElementSibling.style.display = 'block';
-        }   
+        }
+        function getParam(param){
+            let includeParam = location.search.includes(param);
+            let paramData = '';
+            if (includeParam) {
+                // 'date' 파라미터가 이미 URL에 있는 경우
+                const searchParams = new URLSearchParams(location.search);
+                const dateValue = searchParams.get(param);
+                paramData = dateValue;
+            }
+
+            return paramData;
+        }
+
         $(document).ready(function(){
             let rateText = [[${discount}]];
             if(rateText == 0 || rateText == null){
@@ -90,23 +103,44 @@
             let cateList = [[${cateJson}]];
             const cteL = document.getElementById('categoryList');
             let allEl = document.createElement('div');
+            let cateId = getParam('categoryId');
+
             allEl.innerHTML = '<div class="cate_warp"><span><a href="/product/hotDealList?discount='+rateText+'" class="ld">ALL</a></span></div>';
             cteL.appendChild(allEl);
             for (let i = 0; i < cateList.length; i++) {
                 if(cateList[i].tier=='1'){
                     let div = document.createElement('div');
                     let temp = '';
-                    temp+='<div class="cate_warp">';
-                    temp+='<span onclick="showSub(this);">'+cateList[i].categoryName+'</span>';
-                    temp+='<ul class="cate-sub">';
-                    temp+='<li><a href="/product/hotDealList?categoryId='+cateList[i].categoryId+'&discount='+rateText+'"> ALL</a></li>';
+                    temp += '<div class="cate_warp">';
+                    temp += '<span onclick="showSub(this);">' + cateList[i].categoryName + '</span>';
+                    temp += '<ul class="cate-sub" data-cateParent="' + cateList[i].categoryId + '">';
+                    temp += '<li><a href="/product/hotDealList?discount='+rateText+'&categoryId=' + cateList[i].categoryId + '"> ALL</a></li>';
                     cateList[i].children.forEach(element => {
-                        temp += '<li><a href="/product/hotDealList?categoryId=' + element.categoryId + '&discount='+rateText +'">' + element.categoryName + '</a></li>';
+                        temp += '<li><a href="/product/hotDealList?discount='+rateText+'&categoryId=' + element.categoryId + '" data-categoryId="' + element.categoryId + '">' + element.categoryName + '</a></li>';
                     });
-                    temp+='</ul>';
-                    temp+='</div>';
+                    temp += '</ul>';
+                    temp += '</div>';
                     div.innerHTML = temp;                  
                     cteL.appendChild(div);
+                }
+            }
+            if (cateId) {
+                let parent = document.querySelector('ul[data-cateParent="' + cateId + '"]');
+                let child = document.querySelector('a[data-categoryId="' + cateId + '"]');
+                if (parent) {
+                    parent.style.display = 'block';
+                    let allChild = parent.querySelector('li:first-child a');
+                    if (allChild) {
+                        allChild.textContent = 'ALL';
+                        allChild.style.color = 'red';
+                    }
+                } else if (child) {
+                    console.log(child);
+                    let parentDiv = child.closest('.cate-sub');
+                    if (parentDiv) {
+                        parentDiv.style.display = 'block';
+                        child.style.color = 'red';
+                    }
                 }
             }
         });
@@ -176,8 +210,8 @@
                 </li>
             </ul>
         </div>
-        <div th:if="${products.isEmpty()}">
-            <h1>상품이 비어있습니다.</h1>
+        <div th:if="${products.isEmpty()}" style="margin: 0 auto; text-align: center;">
+            <h4 class="text-danger">준비된 상품이 없습니다!</h4>
         </div>
         <div class="fr col" style="text-align: right; display: flex; flex-direction: row-reverse; align-items: center;">
             <button id="write_post_btn" sec:authorize="isAuthenticated()" type="button" class="btn btn-sm btn-secondary" onclick="location.pathname='/product/addProduct'">상품등록</button>

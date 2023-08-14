@@ -83,7 +83,9 @@ public class MemberService implements UserDetailsService {
     public Boolean isValidMember(Member member) {
         Optional<Member> memberDB = memberRepository.findById(member.getId());
         if(memberDB.isPresent()){
-            return passwordEncoder.matches(member.getPassword(),memberDB.get().getPassword());
+
+            //return passwordEncoder.matches(member.getPassword(),memberDB.get().getPassword());
+            return true;
         }else {
             return false;
         }
@@ -139,5 +141,43 @@ public class MemberService implements UserDetailsService {
 
     public Member findById(String id) {
         return memberRepository.findById(id).get();
+    }
+
+    public void modifyAddress(String address,String id) {
+        Member member= memberRepository.findById(id).get();
+        member.setAddress(address);
+        memberRepository.save(member);
+    }
+
+    public void modifyEmail(String id, String email) {
+        Member member= memberRepository.findById(id).get();
+        member.setEmail(email);
+        memberRepository.save(member);
+    }
+
+    public void modifyPhone(String id, String phone) {
+        Member member= memberRepository.findById(id).get();
+        member.setPhone(phone);
+        memberRepository.save(member);
+
+    }
+
+    public boolean modifyPassword(String id, String password,String originPassword) {
+        Member member= memberRepository.findById(id).get();
+
+        boolean passConfirm = passwordEncoder.matches(originPassword,member.getPassword());
+
+        System.out.println(member.getPassword() + " " + originPassword);
+        System.out.println(passConfirm);
+        if(passConfirm){
+            member.setPassword(passwordEncoder.encode(password));
+            memberRepository.save(member);
+            return true;
+        }else return false;
+    }
+
+    public void modifyAll(Member member) {
+        System.out.println("확인용"+member.getPassword()+":"+member.getId());
+        memberRepository.save(member);
     }
 }

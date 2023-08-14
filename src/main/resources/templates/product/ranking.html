@@ -97,9 +97,9 @@
                     temp += '<div class="cate_warp">';
                     temp += '<span onclick="showSub(this);">' + cateList[i].categoryName + '</span>';
                     temp += '<ul class="cate-sub" data-cateParent="' + cateList[i].categoryId + '">';
-                    temp += '<li><a href="/product/shopping?categoryId=' + cateList[i].categoryId + '"> ALL</a></li>';
+                    temp += '<li><a href="/product/ranking?categoryId=' + cateList[i].categoryId + '"> ALL</a></li>';
                     cateList[i].children.forEach(element => {
-                        temp += '<li><a href="/product/shopping?categoryId=' + element.categoryId + '" data-categoryId="' + element.categoryId + '">' + element.categoryName + '</a></li>';
+                        temp += '<li><a href="/product/ranking?categoryId=' + element.categoryId + '" data-categoryId="' + element.categoryId + '">' + element.categoryName + '</a></li>';
                     });
                     temp += '</ul>';
                     temp += '</div>';
@@ -109,7 +109,6 @@
                 }
             }
 
-            console.log(cateId);
             if (cateId) {
                 let parent = document.querySelector('ul[data-cateParent="' + cateId + '"]');
                 let child = document.querySelector('a[data-categoryId="' + cateId + '"]');
@@ -216,6 +215,11 @@
                 </div>
             </a></article>
     </section>
+    </div>
+    
+    <div th:if="${products.isEmpty()}" style="margin: 0 auto; text-align: center;">
+        <h4 class="text-danger">준비된 상품이 없습니다!</h4>
+    </div>
     
     <div class="text-center" th:if="${size < products.getTotalElements()}">
         <button class="btn" onclick="addItems()">

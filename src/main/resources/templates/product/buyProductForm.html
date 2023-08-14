@@ -158,6 +158,7 @@ button:hover {
                   let process_result = result.process_result.split(":");
                   if (process_result[0] == '결제성공') {
                     alert('결제성공!');
+                    window.location.pathname='/';
                   } else {
                     alert(process_result[1]);
                   }

@@ -20,7 +20,7 @@
        function verifyPhone() {
          const phoneNumber = document.getElementById("inputText").value;
          $.ajax({
-                 url: "/sendToPhone",
+                 url: "/member/sendToPhone",
                  type: "POST",
                  data: {'phone': phoneNumber},
                  beforeSend: function(xhr){

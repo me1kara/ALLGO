@@ -96,15 +96,16 @@ public class HelpController {
     @GetMapping("/delete")
     public String deleteHelp(Model model, Long id){
         model.addAttribute("deleteNo",id);
+        System.out.println(id);
         return "/help/deleteForm";
     }
 
     @PostMapping("/delete")
     public String deleteHelp(Long deleteNo){
+        System.out.println(deleteNo+"확인용");
         helpService.deleteHelp(deleteNo);
         return "redirect:/help/questionList";
     }
-
 
 
     @GetMapping("/questionList")
@@ -143,7 +144,7 @@ public class HelpController {
         mapper.registerModule(new JavaTimeModule());
         String jsonInString = mapper.writeValueAsString(hd);
         model.addAttribute("help",jsonInString);
-        model.addAttribute("helpId",id);
+        model.addAttribute("helpId",helpBoard.getId());
         if(authentication.getName()!=null){
             if(helpBoard.getMember().getId().equals(authentication.getName())){
                 model.addAttribute("right",true);

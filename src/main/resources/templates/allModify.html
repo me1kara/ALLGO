@@ -11,27 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
     <title>타이틀</title>
-    <style>
-      #deleteForm{
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid black;
-            text-align: center;
-            font-size: 14px;
-      }
-
-    </style>
 </head>
 <body>
 <div layout:fragment="content">
 
-      <form th:action="@{/help/delete}" id="deleteForm" method="post" class="text-center" style="max-width: 500px;">
-            <input type="hidden" th:value="${deleteNo}" name="deleteNo">
-            <h4 class="text-danger">정말로 삭제하시겠습니까?</h4>
-            <button type="submit" class="btn" style="background-color: #f15e5e; color: white;">확인</button>
-            <button type="button" class="btn" style="background-color: #c1c1c1; color: white;" onclick="history.go(-1);">취소</button>
-      </form>
+    <form th:action="@{/member/modifyAll}">
+        <input type="test" name="pw">
+    </form>
+
+
 </div>
 </body>
 </html>

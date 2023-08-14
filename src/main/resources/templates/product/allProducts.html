@@ -201,8 +201,8 @@
                 </li>
             </ul>
         </div>
-        <div th:if="${products.isEmpty()}">
-            <h1>상품이 비어있습니다.</h1>
+        <div th:if="${products.isEmpty()}" style="margin: 0 auto; text-align: center;">
+            <h4 class="text-danger">준비된 상품이 없습니다!</h4>
         </div>
         <div class="fr col" style="text-align: right; display: flex; flex-direction: row-reverse; align-items: center;">
             <button id="write_post_btn" sec:authorize="isAuthenticated()" type="button" class="btn btn-sm btn-secondary" onclick="location.pathname='/product/addProduct'">상품등록</button>
