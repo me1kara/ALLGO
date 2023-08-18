@@ -1,9 +1,9 @@
-
 spring:
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: none
+      dialect: org.hibernate.dialect.MariaDBDialect
   profiles:
     include: db,apiKeys,email,upload
   thymeleaf:
@@ -13,8 +13,3 @@ spring:
       name : user1
       password : 1234
       roles : USER
-
-
-
-
-

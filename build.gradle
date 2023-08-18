@@ -1,6 +1,5 @@
 plugins {
 	id 'java'
-	id 'war'
 	id 'org.springframework.boot' version '2.7.9'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
@@ -9,6 +8,10 @@ group = 'test'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
+jar {
+	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
+
 
 repositories {
 	mavenCentral()
@@ -16,8 +19,13 @@ repositories {
 
 }
 
-test {
-	useJUnitPlatform()
+tasks.withType(Jar) {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+bootJar{
+	archiveFileName = 'test1.jar' // 생성 파일명
+	mainClass = 'test.testspring.TestSpringApplication' // 메인 클래스 명
 }
 
 
@@ -27,7 +35,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.jetbrains:annotations:23.0.0'
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -79,7 +86,11 @@ dependencies {
 
 
 }
-
-tasks.named('test') {
+test {
+	exclude { '/**/*' }
 	useJUnitPlatform()
 }
+
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}

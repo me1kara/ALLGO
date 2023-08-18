@@ -1,6 +1,7 @@
 HELP.md
 .gradle
-build/
+# build/ 디렉토리와 그 내용은 무시하지 않음
+# 그러나 gradle-wrapper.jar 파일은 무시하지 않음
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
