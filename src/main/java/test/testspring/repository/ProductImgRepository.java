@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface ProductImgRepository extends JpaRepository<ProductImg, Long> {
 
-
-    @Query("select pi from ProductImg pi where pi.product.product_no = :pid")
+    @Query("select pi from ProductImg pi where pi.pid = :pid")
     List<ProductImg> findAllByPid(@Param("pid") Long pid);
 }

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import test.testspring.DTO.CartDTO;
 import test.testspring.domain.Cart;
 import test.testspring.domain.Member;
 import test.testspring.domain.Order;
@@ -193,7 +194,7 @@ public class MemberController {
         if(item==null)item="cart";
         switch(item){
             case "cart" :
-                List<Cart> cartList =  productService.getCartList(id);
+                List<CartDTO> cartList =  productService.getCartList(id);
                 model.addAttribute("myCart", cartList);
                 break;
             case "orderList" :

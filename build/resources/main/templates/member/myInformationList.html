@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragment/_layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+
+
+    <title>타이틀</title>
+    <script th:inline="javascript">
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^\d{3}\d{3,4}\d{4}$/;
+        
+        $(document).ready(function(){
+
+            let modify = [[${modify}]];
+            if(modify){
+                alert('수정실패!');
+            }
+            // $('#modifyPhoneBtn').on('click',()=>{
+            //     console.log('이벤트확인용');
+            //     $('#modifyPhoneModal').show();
+            // });
+            // $('#modifyEmailBtn').on('click',()=>{
+            //     $('#modifyEmailModal').show();
+            // });
+            // $('#modifyPasswordBtn').on('click',()=>{
+            //     $('#modifyPasswordModal').show();
+            // });
+            // $('#modifyAddressBtn').on('click',()=>{
+            //     $('#modifyAddressModal').show();
+            // });
+        })
+
+        function closeModal(element){
+            $(element).closest('.modalWrap').hide();
+        }
+        function verifyPhone() {
+            // 폼에 입력된 전화번호 가져오기
+            const phoneNumber = document.getElementById("phoneInput").value;
+            // 백엔드 API 호출
+            $.ajax({
+                url: "/member/checkPhone",
+                type: "POST",
+                data: {'phone': phoneNumber},
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function(response) {
+                    document.querySelector('#phoneCode-wrap').style.display='block';     
+                    document.querySelector('#phoneCodeBtn').addEventListener('click',function(){
+                        let code = $('#phone-code').val();
+                        if(response==code){
+                            alert('일치합니다!');
+                        }else {
+                            alert('불일치합니다!');
+                        }
+                    })
+                },
+                error: function() {
+                    console.error("유효하지 않은 번호입니다!");
+                }
+            });
+        }
+
+        function openWindowPop(url, name){
+            let aurl = 'http://localhost:7080'+url;
+            var options = 'top=10, left=10, width=500, height=300, status=no, menubar=no, toolbar=no, resizable=no';
+            window.open(aurl, name, options);
+        }
+
+        function verifyEmail() {
+            const email = document.getElementById("emailInput").value;
+            // 백엔드 API 호출
+            $.ajax({
+                url: "/member/checkEmail",
+                type: "POST",
+                data: {'email': email},
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function(response) {
+                    document.querySelector('#emailCode-wrap').style.display='block';     
+                    document.querySelector('#emailCodeBtn').addEventListener('click',function(){
+                        let code = $('#email-code').val();
+                        if(response==code){
+                            alert('일치합니다!');
+                        }else {
+                            phoneCheck = false;
+                            alert('불일치합니다!');
+                        }
+                    })
+  
+                },
+                error: function() {
+                    console.error("유효하지 않은 이메일입니다!");
+                }
+            });
+        }
+
+        function searchAddress(){
+                new daum.Postcode({
+                oncomplete: function(data) {
+                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분입니다.
+                    // 예제를 참고하여 다양한 활용법을 확인해 보세요.
+                    document.querySelector('#address').value=data.address;
+
+                }
+                }).open();
+        }
+        function validateRegisterForm(input) {
+            
+            // 필수 항목 검사
+            let inputText = input.value.trim();
+            if(inputText===''){
+                return false;
+            }else{       
+                switch(input.name){
+                    case 'id' : 
+                        if(!idRegex.test(inputText)){
+                            displayErrorMessage(input, 'ID는 8~20자의 영문 대소문자와 숫자만 입력 가능합니다.');
+                            return false;                        
+                        }else {
+                            clearErrorMessage(input);
+                            let ch = validCheck(input);                                                     
+                            return ch;                       
+                        }
+                        break;
+                    case 'password' : 
+                        if(!passwordRegex.test(inputText)){
+                            displayErrorMessage(input, '비밀번호는 영문 대소문자, 숫자, 특수문자를 포함한 8자-20자 사이여야 합니다.');
+                            return false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            return true;
+                        }
+                        break;
+                    case 'password-confirm' : 
+                        if(inputText!=document.getElementById('password').value.trim()){
+                            displayErrorMessage(input, '비밀번호가 일치하지 않습니다.');
+                            return false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            return true;
+                        }
+
+                    case 'email' : 
+                        if(!emailRegex.test(inputText)){
+                            displayErrorMessage(input, '이메일 형식이 올바르지 않습니다.');
+                            return false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            return true;
+                        }
+                        break;
+                    case 'phone' :
+                        if(!phoneRegex.test(inputText)){
+                            displayErrorMessage(input, '휴대번호 형식이 올바르지 않습니다.');
+                            return false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            return true;
+                        }
+                        break; 
+                    case 'name' :
+                        if(!nameRegex.test(inputText)){
+                            displayErrorMessage(input, '2~4글자로 입력해주세요!');
+                            return false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            return true;
+                        }
+                        break;
+                    /* 
+                    case 'address' :
+                
+                        if(!nameRegex.test(inputText)){
+                            displayErrorMessage(input, '2~4글자로 입력해주세요!');
+                            nameCheck = false;                         
+                        }else {
+                            clearErrorMessage(input);
+                            nameCheck = true;
+                        }
+                        break; 
+                    */
+                        
+                }
+            }
+
+            return false;
+            }
+        
+            function displayErrorMessage(inputElement, message) {
+                let errorMessageElement = inputElement.nextElementSibling;
+                if(inputElement.name!='address'){
+                    if(inputElement.name=='phone'){
+                        errorMessageElement = document.querySelector('#phone-error');
+                    }else if(inputElement.name=='email'){
+                        errorMessageElement = document.querySelector('#email-error');
+
+                    }
+                    errorMessageElement.style.color = "red";
+                    errorMessageElement.innerText = message;
+                }
+                // Insert the error message after the input element
+                }
+
+                function clearErrorMessage(inputElement) {
+                let errorMessageElement = inputElement.nextElementSibling;
+                // if(inputElement.name=='id'){
+                //     errorMessageElement = document.querySelector('#id-error');
+                // }
+                if(inputElement.name!='address'){
+                    if(inputElement.name=='phone'){
+                        errorMessageElement = document.querySelector('#phone-error');
+                    }else if(inputElement.name=='email'){
+                        errorMessageElement = document.querySelector('#email-error');
+
+                    }
+                    errorMessageElement.innerText = '';
+                }
+
+            }
+
+
+    </script>
+
+    <style>
+        #info-content > .row{
+            margin-bottom: 10px;
+        }
+
+        #info-content > .row > h6{
+            border-right: lightgray 1px solid;
+        }
+
+        .modalWrap {
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modalBody {
+            width: 500px;
+            height: 350px;
+            padding: 30px 30px;
+            margin: 0 auto;
+            border: 1px solid #777;
+            background-color: #fff;
+        }
+
+        #modalCloseBtn {
+            float:right;
+            font-weight: bold;
+            color: #777;
+            font-size:25px;
+            cursor: pointer;
+        }
+      
+    </style>
+</head>
+<body>
+    <div layout:fragment="content" >
+    <main style="padding-top:10px;" class="container">
+            <section id="item-list">
+                <ul>
+                    <!-- 클릭시 해당 목록 오른쪽에 나열 -->
+                    <li><a th:href="@{/member/myPage?item=cart}" id="cart">장바구니</a></li>
+                    <li><a th:href="@{/member/myPage?item=orderList}" id="orderList">주문조회</a></li>
+                    <li><a th:href="@{/member/myInformationList}" id="myInformation" style="background-color: #ECECEC;">내정보관리</a></li>
+                </ul>
+            </section>
+            <section id="item-content" style="border-top:black 1px solid;">
+                <h3 id="info-title" class="text-secondary">개인정보</h4>
+                <article id="info-content" class="container">
+                    <div class="row">
+                        <h6 class="col-sm-4">ID</h6>
+                        <p class="col-sm-8" th:text="${member.id}">길동</p> 
+                    </div>
+                    <div class="row">
+                        <h6 class="col-sm-4">이름</h6>
+                        <p class="col-sm-8" th:text="${member.name}">길동</p> 
+                    </div>
+                    <div class="row">
+                        <h6 class="col-sm-4">휴대폰번호</h6>
+                        <p class="col-sm-6" th:text="${member.phone}"></p>
+                        <button id="modifyPhoneBtn" class="col-sm-2 btn btn-sm btn-secondary" style="max-width: 100px;max-height: 31px;" onclick="openWindowPop('/member/modifyPhone','휴대번호변경')">변경</button> 
+                    </div>
+                    <div class="row">
+                        <h6 class="col-sm-4">이메일</h6>
+                        <p class="col-sm-6" th:text="${member.email}"></p>
+                        <button id="modifyEmailBtn"class="col-sm-2 btn btn-sm btn-secondary" style="max-width: 100px; max-height: 31px;" onclick="openWindowPop('/member/modifyEmail','이메일변경')">변경</button> 
+                    </div>
+                    <div class="row">
+                        <h6 class="col-sm-4">주소</h6>
+                        <p class="col-sm-6" th:text="${member.address}"></p>
+                        <button id="modifyAddressBtn" class="col-sm-2 btn btn-sm btn-secondary" style="max-width: 100px; max-height: 31px;" onclick="openWindowPop('/member/modifyAddress','주소변경')">변경</button> 
+                    </div>
+                    <div class="row">
+                        <h6 class="col-sm-10">비밀번호</h6>
+                        <button id="modifyPasswordBtn" class="col-sm-2 btn btn-sm btn-secondary" style="max-width: 100px; max-height: 31px;" onclick="openWindowPop('/member/modifyPassword','비밀번호변경')">변경</button>
+                    </div>
+                </article>
+            </section>
+        </main>
+        <div style="clear: both;"></div>
+    </div>
+    
+    <div id="modifyAddressModal" style="display: none;" class="modalWrap">
+        <div class="modalBody">
+            <div style="text-align: right;">
+                <button class="modalCloseBtn" onclick="closeModal(this)"><i class="fa-regular fa-xmark" style="color: #e60f0f;"></i></button>
+            </div>
+            <form th:action="@{/member/modifyAddress}">
+                <h5>회원님의 주소를 변경합니다</h5>
+                <label for="addressInput">주소</label>
+                <div class="input-group">
+                    <input type="text" class="input-group-text" th:value="${member.address}" name="address1" id="address" readonly required>
+                    <button class="input-group-append btn btn-sm btn-outline-secondary" onclick="searchAddress()">변경</button>
+                </div>
+                <label for="addressInput">상세주소</label>
+                <div class="input-group">
+                    <input type="text" id="addressInput" class="input-group-text" name="address2" required>
+                </div>
+                <div style="text-align: center;">
+                    <button class="btn btn-sm btn-outline-success">변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="modifyPhoneModal" style="display: none;" class="modalWrap">
+        <div class="modalBody">
+            <div style="text-align: right;">
+                <button class="modalCloseBtn" onclick="closeModal(this)"><i class="fa-regular fa-xmark" style="color: #e60f0f;"></i></button>
+            </div>
+            <h5>회원님의 휴대폰번호를 변경하기위해 휴대폰 인증이 필요합니다.</h5>
+            <label for="passwordInput">휴대폰번호</label>
+            <div class="input-group">
+                <input type="text" id="phoneInput" class="input-group-text" name="phone" onblur="validateRegisterForm(this)">
+                <button class="input-group-append btn btn-sm btn-outline-secondary" onclick="openWindowPop('modifyPhone','휴대번호변경')">변경</button>
+                <div id="phone-error"></div>
+            </div>
+            <div class="input-group" id="phoneCode-wrap" style="display: none;">
+                <input type="text" id="phone-code" class="input-group-text">
+                <button id="phoneCodeBtn" class="input-group-append btn btn-sm btn-outline-secondary">확인</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modifyEmailModal" style="display: none;" class="modalWrap">
+        <div class="modalBody">
+            <div style="text-align: right;">
+                <button class="modalCloseBtn" onclick="closeModal(this)"><i class="fa-regular fa-xmark" style="color: #e60f0f;"></i></button>
+            </div>            <h5>회원님의 이메일을 변경하기위해 이메일 인증이 필요합니다.</h5>
+            <label for="emailInput">이메일</label>
+            <div class="input-group">
+                <input type="text" id="emailInput" class="input-group-text" name="email" onblur="validateRegisterForm(this)">
+                <button class="input-group-append btn btn-sm btn-outline-secondary">변경</button>
+                <div id="email-error"></div>
+            </div>
+            <div class="input-group" id="emailCode-wrap">
+                <input type="text" id="email-code" class="input-group-text">
+                <button id="emailCodeBtn" class="input-group-append btn btn-sm btn-outline-secondary">변경</button>
+            </div>
+        </div>
+    </div>
+    <div id="modifyPasswordModal" style="display: none;" class="modalWrap"> 
+        <div class="modalBody">
+            <div style="text-align: right;">
+                <button class="modalCloseBtn" onclick="closeModal(this)"><i class="fa-regular fa-xmark" style="color: #e60f0f;"></i></button>
+            </div>
+            <h5>회원님의 비밀번호를 변경하기위해 비밀번호 인증이 필요합니다.</h5>
+            <label for="passwordInput">비밀번호</label>
+            <input type="password" id="passwordInput" class="form-control" style="max-width: 250px;">
+            <label for="newPassword">변경할 비밀번호</label>
+            <input type="password" id="newPassword" class="form-control" name="password" style="max-width: 250px;" onblur="validateRegisterForm(this)">
+            <div id="password-error"></div>
+            <label for="newPasswordConfirm">변경할 비밀번호 확인</label>
+            <input type="password" id="newPasswordConfirm" class="form-control" name="password-confirm" style="max-width: 250px;" onblur="validateRegisterForm(this)">
+            <div id="passwordCheck-error"></div>
+            <div style="text-align: center;">
+                <button class="input-group-append btn btn-sm btn-outline-success">변경</button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

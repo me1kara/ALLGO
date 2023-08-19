@@ -20,9 +20,7 @@ public class ProductImg {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String url;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pid")
-    private Product product;
+    private Long pid;
 
 
 }

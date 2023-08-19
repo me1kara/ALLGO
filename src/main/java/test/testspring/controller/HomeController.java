@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import test.testspring.DTO.ProductDTO;
 import test.testspring.domain.Product;
 import test.testspring.service.ProductService;
 
@@ -22,14 +23,13 @@ public class HomeController {
     }
     @RequestMapping("/")
     public String home(Model model){
-        List<Product> products = productService.getMainProduct();
+        List<ProductDTO> products = productService.getMainProduct();
         model.addAttribute("products",products);
         return "home";
     }
 
     @GetMapping("/admin")
     public String admin(){
-        System.out.println("여기 들오냐?");
         return "/admin/sample";
     }
 

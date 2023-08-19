@@ -46,6 +46,9 @@ dependencies {
 
 
 
+	//model mapper
+	implementation 'org.modelmapper:modelmapper:2.4.2'
+
 
 	//jwt
 	implementation 'javax.xml.bind:jaxb-api'

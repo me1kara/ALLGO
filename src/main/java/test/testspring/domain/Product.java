@@ -36,9 +36,9 @@ public class Product {
     @JoinColumn(name = "card_id")
     private Card card;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="pid")
     private List<ProductImg> productImgs = new ArrayList<>();
-
     @OneToOne
     @JoinColumn(name="cate_code")
     private ProductCategory productCategory;

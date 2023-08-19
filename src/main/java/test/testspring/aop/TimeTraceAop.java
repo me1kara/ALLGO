@@ -17,8 +17,8 @@ public class TimeTraceAop {
         StopWatch sw = new StopWatch();
         sw.start();
         try{
-         Object result = joinPoint.proceed();
-        return result;
+
+        return joinPoint.proceed();
         }finally{
             sw.stop();
             long executionTime = sw.getTotalTimeMillis();

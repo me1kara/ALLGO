@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import test.testspring.DTO.CategoryDto;
+import test.testspring.DTO.ProductDTO;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.Card;
 import test.testspring.domain.Member;
@@ -84,7 +85,7 @@ public class ProductController {
                                                          SearchDTO search,
                                                          Model model) throws JsonProcessingException {
         Pageable pageRequest = PageRequest.of(page,size);
-        Page<Product> pages = productService.getAllProduct(pageRequest, search);
+        Page<ProductDTO> pages = productService.getAllProduct(pageRequest, search);
         model.addAttribute("products",pages);
         List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
@@ -120,7 +121,7 @@ public class ProductController {
                                     SearchDTO search,
                                     Model model){
         Pageable pageRequest = PageRequest.of(page,size);
-        Page<Product> pages = productService.getAllProduct(pageRequest, search);
+        Page<ProductDTO> pages = productService.getAllProduct(pageRequest, search);
         model.addAttribute("products",pages);
 
         return "itemList/ranking";

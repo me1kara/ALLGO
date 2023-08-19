@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>타이틀</title>
+    <script>
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,20}$/;
+        const error_text = $('.error-text');
+        function checkPw(){
+            let password = $('#password').val().trim();
+            if(password==''){
+                error-text.text('비밀번호를 입력해주세요!');
+                return false;
+            }else if(passwordRegex.test(password)){
+                error-text.text('비밀번호는 영문 대소문자, 숫자, 특수문자를 포함한 8자-20자 사이여야 합니다.');
+                return false;
+            }else {
+                setPw();
+            }
+
+        }
+        function setPw() {
+            let id = document.getElementsByName('id')[0].value;
+            let pw = document.getElementsByName('password')[0].value;
+            $.post({
+                url: '/setId',
+                data: {'id': id, 'pw': pw},
+                success(response) {
+                    if (response == 'ok') {
+                        window.close();
+                    }
+                },
+                error(response) {
+                    alert('변경에 실패했습니다.');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <p>아이디 : <strong th:text="{id}"></strong></p>
+        <p>비밀번호를 변경하시겠습니까?</p>
+        <div class="input-group">
+            <input type="hidden" th:value="${id}" name="id">
+            <input type="password" id="password" name="password">
+            <button type="submit" class="btn btn-secondary btn-sm input-group-append" onclick="checkPw()">재설정</button>
+        </div>
+        <div class="error-text text-danger">
+        </div>
+    </div>
+</body>
+</html>

@@ -3,6 +3,7 @@ package test.testspring.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
+import test.testspring.DTO.CartDTO;
+import test.testspring.DTO.MemberDTO;
+import test.testspring.DTO.ProductDTO;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.*;
 import test.testspring.repository.*;
@@ -23,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -48,11 +53,12 @@ public class ProductService {
         this.productImgRepository = productImgRepository;
     }
 
-    public Page<Product> getAllProduct(Pageable pageRequest, SearchDTO search){
+    public Page<ProductDTO> getAllProduct(Pageable pageRequest, SearchDTO search){
         String type = search.getSearchType();
         Long categoryId = search.getCategoryId();
         Page<Product> allProduct;
         log.info("info log={}",categoryId,type);
+        ModelMapper mapper = new ModelMapper();
         if (type == null) {
             if(categoryId != null){
                 allProduct=productRepository.findAllByCategoryId(categoryId, pageRequest);
@@ -88,8 +94,8 @@ public class ProductService {
                     break;
             }
         }
+        return allProduct.map(p -> mapper.map(p, ProductDTO.class));
 
-        return allProduct;
     }
 
 
@@ -102,8 +108,9 @@ public class ProductService {
         productRepository.incrementView(productNo);
     }
 
-    public List<Cart> getCartList(String mid){
-        return cartRepository.findAllByMid(mid);
+    public List<CartDTO> getCartList(String mid){
+        ModelMapper mapper = new ModelMapper();
+        return cartRepository.findAllByMid(mid).stream().map(c -> mapper.map(c, CartDTO.class)).collect(Collectors.toList());
     }
 
     public List<Order> getOrderList(String id) {
@@ -182,8 +189,11 @@ public class ProductService {
 
     }
 
-    public List<Product> getMainProduct() {
-        return productRepository.findTopSixFavoriteProductsByCategory();
+    public List<ProductDTO> getMainProduct() {
+
+        ModelMapper mapper = new ModelMapper();
+
+        return productRepository.findTopSixFavoriteProductsByCategory().stream().map(m -> mapper.map(m,ProductDTO.class)).collect(Collectors.toList());
     }
 
     public List<Product> getHotProduct(double rate) {
@@ -335,7 +345,7 @@ public class ProductService {
                     // ProductImg 생성
                     ProductImg productImg = ProductImg.builder()
                             .url(storeFilename)
-                            .product(saveProduct)
+                            .pid(saveProduct.getProduct_no())
                             .build();
                     result.add(productImg);
                 }
