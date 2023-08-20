@@ -22,10 +22,10 @@
     </script>
 </head>
 <body>
-    <div th:replace="~{fragment/header :: header}"></div>
+    <div th:replace="~{fragment/header :: header()}"></div>
     <div layout:fragment="content">
         <p>change</p>
     </div>
-    <div th:replace="~{fragment/footer :: footer}"></div>
+    <div th:replace="~{fragment/footer :: footer()}"></div>
 </body>
 </html>

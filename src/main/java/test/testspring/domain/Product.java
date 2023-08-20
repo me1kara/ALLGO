@@ -36,7 +36,9 @@ public class Product {
     @JoinColumn(name = "card_id")
     private Card card;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    //OneToMany 기본 로딩전략 lazy
+    //
+    @OneToMany
     @JoinColumn(name="pid")
     private List<ProductImg> productImgs = new ArrayList<>();
     @OneToOne

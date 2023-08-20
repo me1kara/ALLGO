@@ -123,8 +123,7 @@ public class HelpController {
     @GetMapping("/questionContent")
     public String viewQuestionContent(Model model, Long id,
                                       @RequestParam(value = "top", required = false) Double top) throws JsonProcessingException {
-        HelpBoard helpBoard = helpService.viewQuestionContent(id);
-        HelpBoardDTO hd = new HelpBoardDTO(helpBoard);
+        HelpBoardDTO helpBoard = helpService.viewQuestionContent(id);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 현재 사용자의 모든 권한 확인
@@ -142,7 +141,7 @@ public class HelpController {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-        String jsonInString = mapper.writeValueAsString(hd);
+        String jsonInString = mapper.writeValueAsString(helpBoard);
         model.addAttribute("help",jsonInString);
         model.addAttribute("helpId",helpBoard.getId());
         if(authentication.getName()!=null){

@@ -6,15 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
-import test.testspring.DTO.CartDTO;
-import test.testspring.DTO.MemberDTO;
-import test.testspring.DTO.ProductDTO;
-import test.testspring.DTO.SearchDTO;
+import test.testspring.DTO.*;
 import test.testspring.domain.*;
 import test.testspring.repository.*;
 
@@ -117,8 +112,10 @@ public class ProductService {
         return orderRepository.findAllbyId(id);
     }
 
-    public List<ProductCategory> getCateCode() {
-        return categoryRepository.findAll();
+    public List<CategoryDto> getCateCode() {
+        List<ProductCategory> categories = categoryRepository.findAll();
+
+        return categories.stream().map(CategoryDto::of).collect(Collectors.toList());
     }
 
     public String incrementFavoriteProduct(String id, Long productNo) {
@@ -192,8 +189,9 @@ public class ProductService {
     public List<ProductDTO> getMainProduct() {
 
         ModelMapper mapper = new ModelMapper();
+        List<Product> products = productRepository.findTopSixFavoriteProductsByCategory();
 
-        return productRepository.findTopSixFavoriteProductsByCategory().stream().map(m -> mapper.map(m,ProductDTO.class)).collect(Collectors.toList());
+        return products.stream().map(m -> mapper.map(m,ProductDTO.class)).collect(Collectors.toList());
     }
 
     public List<Product> getHotProduct(double rate) {

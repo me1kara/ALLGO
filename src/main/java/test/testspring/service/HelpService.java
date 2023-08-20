@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import test.testspring.DTO.HelpBoardDTO;
 import test.testspring.DTO.HelpCommentDTO;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.FIleUpload;
@@ -72,17 +73,12 @@ public class HelpService {
         return helpBoards;
     }
 
-    public HelpBoard viewQuestionContent(Long id) {
-        HelpBoard helpBoard = helpRepository.findById(id).orElse(new HelpBoard());
-        List<HelpComment> childComments = new ArrayList<>();
+    public HelpBoardDTO viewQuestionContent(Long id) {
 
-        for (HelpComment comment : helpBoard.getComments()) {
-            if (comment.getParentCommentId() == null) {
-                childComments.add(comment);
-            }
-        }
-        helpBoard.setComments(childComments);
-        return helpBoard;
+        HelpBoard helpBoard = helpRepository.findById(id).orElse(new HelpBoard());
+
+
+        return new HelpBoardDTO(helpBoard);
     }
 
     public void addComment(HelpComment comment) {

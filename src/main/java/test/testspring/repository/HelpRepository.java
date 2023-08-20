@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import test.testspring.DTO.SearchDTO;
 import test.testspring.domain.Cart;
 import test.testspring.domain.HelpBoard;
+
+import java.util.Optional;
+
 public interface HelpRepository extends JpaRepository<HelpBoard, Long> {
 
     Page<HelpBoard> findByTitleContaining(String title, Pageable pageRequest);

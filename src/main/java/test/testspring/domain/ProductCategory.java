@@ -30,7 +30,7 @@ public class ProductCategory {
     @JoinColumn(name = "cate_parent", referencedColumnName = "cate_code", nullable = true)
     private ProductCategory cateParent;
     // 자식 정의
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cateParent")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "cateParent")
     private List<ProductCategory> children = new ArrayList<>();
 
 }

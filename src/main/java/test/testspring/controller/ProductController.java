@@ -70,7 +70,7 @@ public class ProductController {
         Pageable pageRequest = PageRequest.of(page,size);
         Page<Product> pages = productService.getHotProducts(pageRequest, search, discount);
         model.addAttribute("products",pages);
-        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateJson", cateList);
@@ -87,7 +87,7 @@ public class ProductController {
         Pageable pageRequest = PageRequest.of(page,size);
         Page<ProductDTO> pages = productService.getAllProduct(pageRequest, search);
         model.addAttribute("products",pages);
-        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateJson", cateList);
@@ -105,7 +105,7 @@ public class ProductController {
         Pageable pageRequest = PageRequest.of(page,size);
         Page<Product> pages = productService.getProductRanking(pageRequest, categoryId,date);
         model.addAttribute("products",pages);
-        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateJson", cateList);
@@ -162,7 +162,7 @@ public class ProductController {
         model.addAttribute("cateParent",product.getProductCategory().getCateParent().getCateCode());
         model.addAttribute("cateCode",product.getProductCategory().getCateCode());
 
-        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateList", cateList);
@@ -233,7 +233,7 @@ public class ProductController {
     @GetMapping("/addProduct")
     public String addProduct(Model model){
         model.addAttribute("product", new Product());
-        List<CategoryDto> cateList = productService.getCateCode().stream().map(CategoryDto::of).collect(Collectors.toList());
+        List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateList", cateList);
