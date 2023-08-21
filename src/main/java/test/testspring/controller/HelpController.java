@@ -114,7 +114,7 @@ public class HelpController {
                                    SearchDTO search,
                                    Model model) throws JsonProcessingException {
         Pageable pageRequest = PageRequest.of(page,size);
-        Page<HelpBoard> helps = helpService.findAll(pageRequest, search);
+        Page<HelpBoard> helps = helpService.getQuestionList(pageRequest, search);
         model.addAttribute("helps",helps);
 
         return "/help/questionList";
@@ -123,7 +123,7 @@ public class HelpController {
     @GetMapping("/questionContent")
     public String viewQuestionContent(Model model, Long id,
                                       @RequestParam(value = "top", required = false) Double top) throws JsonProcessingException {
-        HelpBoardDTO helpBoard = helpService.viewQuestionContent(id);
+        HelpBoardDTO helpBoard = helpService.getQuestionContent(id);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 현재 사용자의 모든 권한 확인
@@ -132,12 +132,10 @@ public class HelpController {
         boolean isAdmin = authorities.stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
             // 특정 권한에 따라 동작 수행
-
         if (isAdmin || helpBoard.getMember().getId().equals(authentication.getName())) {
             // 댓글쓰기 권한이 있는 경우(관리자 or 본인)
             model.addAttribute("replyRight", true);
         }
-
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());

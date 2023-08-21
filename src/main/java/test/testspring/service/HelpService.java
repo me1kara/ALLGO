@@ -47,9 +47,8 @@ public class HelpService {
         this.fIleUpload = fIleUpload;
     }
 
-    public Page<HelpBoard> findAll(Pageable pageRequest, SearchDTO search) {
+    public Page<HelpBoard> getQuestionList(Pageable pageRequest, SearchDTO search) {
         String type = search.getSearchType();
-        System.out.println(type);
         Page<HelpBoard> helpBoards;
         if(type!=null){
             String keyword = search.getKeyword();
@@ -58,7 +57,6 @@ public class HelpService {
                     helpBoards = helpRepository.findByTitleContaining(keyword,pageRequest);
                     break;
                 case "titleOrContent":
-                    log.info("{}", search.getKeyword());
                     helpBoards = helpRepository.findByTitleContainingOrContentContaining(keyword,keyword,pageRequest);
                     break;
                 case "writer":
@@ -73,7 +71,7 @@ public class HelpService {
         return helpBoards;
     }
 
-    public HelpBoardDTO viewQuestionContent(Long id) {
+    public HelpBoardDTO getQuestionContent(Long id) {
 
         HelpBoard helpBoard = helpRepository.findById(id).orElse(new HelpBoard());
 

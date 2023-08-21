@@ -212,7 +212,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         model.addAttribute("member",member);
 
         return "member/myInformationList";
@@ -275,7 +275,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         model.addAttribute("address",member.getAddress());
         return "/member/modifyForm";
     }
@@ -284,7 +284,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         model.addAttribute("phone",member.getPhone());
 
         return "/member/modifyForm";
@@ -294,7 +294,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         model.addAttribute("email",member.getEmail());
 
 
@@ -305,7 +305,7 @@ public class MemberController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         model.addAttribute("password",member.getPassword());
         return "/member/modifyForm";
     }
@@ -318,7 +318,7 @@ public class MemberController {
     public String testAllModify(String name){
 
         String pass = passwordEncoder.encode("12345");
-        Member member = memberService.findById(name);
+        Member member = memberService.getMemberById(name);
         member.setPassword(pass);
 
         memberService.modifyAll(member);

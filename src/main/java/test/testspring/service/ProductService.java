@@ -149,11 +149,10 @@ public class ProductService {
     }
 
 
-    public Page<Product> getProductRanking(Pageable pageRequest, Long categoryId,String date) {
+    public Page<ProductDTO> getProductRanking(Pageable pageRequest, Long categoryId,String date) {
 
         Page<Product> productRanking;
         Date targetDate;
-        System.out.println(date);
         if (date!=null && (date.equals("daily") || date.equals("weekly") || date.equals("monthly"))) {
             Calendar calendar = Calendar.getInstance();
             switch (date) {
@@ -181,9 +180,8 @@ public class ProductService {
                 productRanking = productRepository.findAllOrderByFavorite(pageRequest);
             }
         }
-
-        return productRanking;
-
+        ModelMapper mapper = new ModelMapper();
+        return productRanking.map(m -> mapper.map(m, ProductDTO.class));
     }
 
     public List<ProductDTO> getMainProduct() {

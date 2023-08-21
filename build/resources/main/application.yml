@@ -11,9 +11,16 @@ spring:
     include: db,apiKeys,email,upload
   thymeleaf:
     cache: false
-  security:
-    user:
-      name : user1
-      password : 1234
-      roles : USER
+  output:
+      ansi:
+        enabled: always
+
+logging:
+  file:
+    path : ./logs/
+    max-size: 500MB
+    max-history: 10
+  level:
+    root: info
+    test.testspring.aop: debug
 

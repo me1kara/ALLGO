@@ -139,7 +139,7 @@ public class MemberService implements UserDetailsService {
 
     }
 
-    public Member findById(String id) {
+    public Member getMemberById(String id) {
         return memberRepository.findById(id).get();
     }
 

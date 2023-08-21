@@ -13,12 +13,11 @@ import org.springframework.util.StopWatch;
 public class TimeTraceAop {
     @Around("execution(* test.testspring..*(..))")
     public Object execute(ProceedingJoinPoint joinPoint) throws Throwable{
-
         StopWatch sw = new StopWatch();
         sw.start();
         try{
 
-        return joinPoint.proceed();
+            return joinPoint.proceed();
         }finally{
             sw.stop();
             long executionTime = sw.getTotalTimeMillis();

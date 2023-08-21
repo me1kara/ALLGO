@@ -103,7 +103,7 @@ public class ProductController {
                                      @RequestParam(required = false) String date,
                                      Model model) throws JsonProcessingException {
         Pageable pageRequest = PageRequest.of(page,size);
-        Page<Product> pages = productService.getProductRanking(pageRequest, categoryId,date);
+        Page<ProductDTO> pages = productService.getProductRanking(pageRequest, categoryId,date);
         model.addAttribute("products",pages);
         List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
@@ -113,18 +113,6 @@ public class ProductController {
         model.addAttribute("size",size);
 
         return "product/ranking";
-    }
-
-    @RequestMapping("/event")
-    public String showEventProducts(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
-                                    @RequestParam(value = "size",defaultValue = "9",required = false) int size,
-                                    SearchDTO search,
-                                    Model model){
-        Pageable pageRequest = PageRequest.of(page,size);
-        Page<ProductDTO> pages = productService.getAllProduct(pageRequest, search);
-        model.addAttribute("products",pages);
-
-        return "itemList/ranking";
     }
 
     @GetMapping("/productContent")
