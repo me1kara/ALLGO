@@ -1,8 +1,14 @@
 package test.testspring.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -21,11 +27,13 @@ import test.testspring.service.ProductService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/member")
+@Slf4j
 public class MemberController {
     private final MemberService memberService;
 
@@ -52,35 +60,34 @@ public class MemberController {
         return "login/loginForm";
     }
     @PostMapping("/login")
-    public String checkMember(HttpSession session, Model model, Member member, HttpServletResponse response){
-        boolean result = memberService.isValidMember(member);
-        //로그인 성공시
-        if (result) {
-            session.setAttribute("member", member);
-            System.out.println("로그인 확인용");
-            /*
-            String token = securityService.createToken(member.getId(),member.getRole(),(2*1000*60));
-            Cookie cookie = new Cookie("jwt", token);
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
-            */
-        } else {
-            // 로그인 실패 시
-            model.addAttribute("id",member.getId());
-            return "login/loginForm";
-        }
+    public String validMember(HttpSession session, Model model, Member member, HttpServletResponse response){
+//        boolean result = memberService.isValidMember(member);
+//        //로그인 성공시
+//        if (result) {
+//            session.setAttribute("member", member);
+//            /*
+//            String token = securityService.createToken(member.getId(),member.getRole(),(2*1000*60));
+//            Cookie cookie = new Cookie("jwt", token);
+//            cookie.setHttpOnly(true);
+//            response.addCookie(cookie);
+//            */
+//        } else {
+//            // 로그인 실패 시
+//            model.addAttribute("id",member.getId());
+//            return "login/loginForm";
+//        }
 
         return "home";
     }
 
     //회원가입
     @GetMapping("/registerForm")
-    public String registerForm(){
+    public String viewPostMember(){
         return "login/registerForm";
     }
 
     @PostMapping("/registerCheck")
-    public String joinRegister(){
+    public String postMember(){
 
         return "redirect:/";
     }
@@ -102,18 +109,18 @@ public class MemberController {
 //    }
 
     @GetMapping("/findId")
-    public String findMember(){return "login/findId";}
+    public String findMemberForm(){return "login/findId";}
 
     @PostMapping("/checkId")
     @ResponseBody
-    public String checkId(@RequestParam("id") String id){
+    public String validId(@RequestParam("id") String id){
         Optional<Member> member = memberService.findOne(id);
         return member.isPresent() ? "unable" : "ok";
     }
 
     @PostMapping("/checkPhone")
     @ResponseBody
-    public String checkPhone(@RequestParam("phone") String phone){
+    public String validPhone(@RequestParam("phone") String phone){
         boolean phoneValid = memberService.findByPhone(phone)
                 .isEmpty();
         //가입된 유저가 없다면
@@ -124,7 +131,7 @@ public class MemberController {
 
     @PostMapping("/checkEmail")
     @ResponseBody
-    public String emailConfirm(@RequestParam String email) throws Exception {
+    public String validEmail(@RequestParam String email) throws Exception {
         boolean emailValid = memberService.findByEmail(email).isEmpty();
         //가입된 유저가 없다면
         if(emailValid) return emailService.sendSimpleMessage(email);
@@ -141,7 +148,7 @@ public class MemberController {
     //아이디 패스워드 찾기
     @PostMapping("/sendToPhone")
     @ResponseBody
-    public String findByPhone(@RequestParam("phone") String phone){
+    public String findMemberByPhone(@RequestParam("phone") String phone){
         boolean phoneValid = memberService.findByPhone(phone)
                 .isEmpty();
         //가입된 유저가 있다면
@@ -151,7 +158,7 @@ public class MemberController {
     }
     @PostMapping("/sendToEmail")
     @ResponseBody
-    public String findByEmail(@RequestParam String email) throws Exception {
+    public String findMemberByEmail(@RequestParam String email) throws Exception {
         boolean emailValid = memberService.findByEmail(email).isEmpty();
         //가입된 유저가 있다면
         if(!emailValid) return emailService.sendSimpleMessage(email);
@@ -159,7 +166,7 @@ public class MemberController {
     }
 
     @PostMapping("/findAndSet")
-    public String findIdByEmail(HttpServletRequest request, Model model) throws Exception {
+    public String findAndSetMember(HttpServletRequest request, Model model) throws Exception {
         String emailParam = request.getParameter("email");
         String phoneParam = request.getParameter("phone");
         if(emailParam != null) {
@@ -172,8 +179,7 @@ public class MemberController {
             throw new IllegalArgumentException("이메일, 휴대폰 번호 둘다 주어지지 않았습니다.");
         }
 
-        System.out.println("확인용");
-        
+
         return "login/findAndSet";
     }
 
@@ -186,11 +192,11 @@ public class MemberController {
     }
 
     @GetMapping("/myPage")
-    public String myPage(HttpSession session,Model model, @RequestParam(value = "item",required = false) String item){
-        // 현재 로그인된 사용자의 정보 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    @PostAuthorize("isAuthenticated()")
+    public String viewMyPage(@AuthenticationPrincipal User user, HttpSession session, Model model, @RequestParam(value = "item",required = false) String item){
         // 사용자의 로그인 ID 가져오기
-        String id = authentication.getName();
+        String id = user.getUsername();
+
         if(item==null)item="cart";
         switch(item){
             case "cart" :
@@ -207,7 +213,7 @@ public class MemberController {
 
 
     @GetMapping("/myInformationList")
-    public String getMyInformationList(Model model){
+    public String viewMyInfo(Model model){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -221,7 +227,7 @@ public class MemberController {
 
     @PostMapping("/modifyAddress")
     @ResponseBody
-    public String modifyAddress(@RequestParam("address") String address, @RequestParam("address2") String address2){
+    public String putAddressInMember(@RequestParam("address") String address, @RequestParam("address2") String address2){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -234,7 +240,7 @@ public class MemberController {
     }
     @PostMapping("/modifyEmail")
     @ResponseBody
-    public String modifyEmail(@RequestParam("email") String email){
+    public String putEmailInMember(@RequestParam("email") String email){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -246,7 +252,7 @@ public class MemberController {
     }
     @PostMapping("/modifyPhone")
     @ResponseBody
-    public String modifyPhone(@RequestParam("phone") String phone){
+    public String putPhoneInMember(@RequestParam("phone") String phone){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -257,7 +263,7 @@ public class MemberController {
     }
     @PostMapping("/modifyPassword")
     @ResponseBody
-    public String modifyPassword(String password, String originPassword){
+    public String putPasswordInMember(String password, String originPassword){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -271,7 +277,7 @@ public class MemberController {
     }
 
     @GetMapping("/modifyAddress")
-    public String modifyAddress(Model model){
+    public String viewModifyAddressForm(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
@@ -280,7 +286,7 @@ public class MemberController {
         return "/member/modifyForm";
     }
     @GetMapping("/modifyPhone")
-    public String modifyPhone(Model model){
+    public String viewModifyPhoneForm(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
@@ -290,7 +296,7 @@ public class MemberController {
         return "/member/modifyForm";
     }
     @GetMapping("/modifyEmail")
-    public String modifyEmailForm(Model model){
+    public String viewModifyEmailForm(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
@@ -301,7 +307,7 @@ public class MemberController {
         return "/member/modifyForm";
     }
     @GetMapping("/modifyPassword")
-    public String modifyPasswordForm(Model model){
+    public String viewModifyPasswordForm(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String id = authentication.getName();
@@ -310,12 +316,9 @@ public class MemberController {
         return "/member/modifyForm";
     }
 
-
-
-
     //비번 분실시 고치는용도
     @GetMapping("/resetPass")
-    public String testAllModify(String name){
+    public String putPasswordInAll(String name){
 
         String pass = passwordEncoder.encode("12345");
         Member member = memberService.getMemberById(name);

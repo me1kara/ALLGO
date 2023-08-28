@@ -31,6 +31,7 @@ public class ProductCategory {
     private ProductCategory cateParent;
     // 자식 정의
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "cateParent")
+    @Builder.Default
     private List<ProductCategory> children = new ArrayList<>();
 
 }

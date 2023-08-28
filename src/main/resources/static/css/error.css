@@ -1,0 +1,37 @@
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f8f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .errorPage {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .errorHead {
+        font-size: 36px;
+        font-weight: bold;
+        color: #e74c3c;
+    }
+
+    .statusCode {
+        font-size: 72px;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-top: 10px;
+    }
+
+    .statusDescription {
+        font-size: 18px;
+        color: #333;
+        margin-top: 10px;
+    }

@@ -25,6 +25,8 @@ public class OrderProductDeliveryDTO {
     private BigDecimal price;
     private BigDecimal amount;
     private String address;
+
+    @Builder.Default
     private List<Card> cards = new ArrayList<>();
     private Delivery delivery;
     private float discount_rate;

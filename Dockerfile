@@ -1,3 +1,4 @@
 FROM openjdk:17
-COPY build/libs/*.jar test1.jar
-ENTRYPOINT ["java", "-jar", "/test1.jar"]
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]

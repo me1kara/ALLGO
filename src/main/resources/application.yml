@@ -1,19 +1,20 @@
 spring:
+  profiles:
+    active : local
+    group :
+      local : apiKeys, email, upload_local, db_local
+      prod : apiKeys, email, upload_prod, db_prod
   jpa:
     properties:
       hibernate:
         default_batch_fetch_size: 1000
     show-sql: true
-    hibernate:
-      ddl-auto: none
-      dialect: org.hibernate.dialect.MariaDBDialect
-  profiles:
-    include: db,apiKeys,email,upload
+
   thymeleaf:
     cache: false
   output:
-      ansi:
-        enabled: always
+    ansi:
+      enabled: always
 
 logging:
   file:
@@ -23,4 +24,36 @@ logging:
   level:
     root: info
     test.testspring.aop: debug
+
+--- # local
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+      dialect: org.hibernate.dialect.MariaDBDialect
+  config:
+    activate:
+      on-profile: local # 환경이름설정
+server:
+  port: 7080
+  url: localhost
+  error:
+    include-exception: true # 오류 응답에 exception의 내용을 포함할지 여부
+    include-stacktrace: always # 오류 응답에 stacktrace 내용을 포함할 지 여부
+
+--- # prod
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create # 서버 가동 확인용
+      dialect: org.hibernate.dialect.MariaDBDialect
+  config:
+    activate:
+      on-profile: prod # 환경이름설정
+server:
+  port: 80
+  url: allgo24
+  error:
+    include-exception: true # 오류 응답에 exception의 내용을 포함할지 여부
+    include-stacktrace: always # 오류 응답에 stacktrace 내용을 포함할 지 여부
 

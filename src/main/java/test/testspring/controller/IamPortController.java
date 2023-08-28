@@ -44,8 +44,7 @@ public class IamPortController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<?> payBook(@RequestBody Map<String, Object> model, HttpServletRequest req) {
-        System.out.println("입장확인");
+    public ResponseEntity<?> postBook(@RequestBody Map<String, Object> model, HttpServletRequest req) {
         //map, json 으로 받고 보내기
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "application/json; charset=UTF-8");
@@ -67,8 +66,8 @@ public class IamPortController {
         String error_msg = (String)model.get("error_msg");
         //결제성공했을시
         if(success==true) {
-            Member buyer = memberService.findById(buyerId);
-            Member seller = memberService.findById(sellerId);
+            Member buyer = memberService.getMemberById(buyerId);
+            Member seller = memberService.getMemberById(sellerId);
             Delivery delivery = deliveryService.findById(deliveryId);
             Product product = productService.getProductByNo(product_no);
 //            Card card = cardService.findCardById(card_no);
@@ -120,7 +119,7 @@ public class IamPortController {
     }
 
     @PostMapping("/paymentByCart")
-    public ResponseEntity<?> payBookByCart(@RequestBody Map<String, Object> model, HttpServletRequest req) {
+    public ResponseEntity<?> postBookInCarts(@RequestBody Map<String, Object> model, HttpServletRequest req) {
         System.out.println("입장확인");
         //map, json 으로 받고 보내기
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -143,8 +142,8 @@ public class IamPortController {
         String error_msg = (String)model.get("error_msg");
         //결제성공했을시
         if(success==true) {
-            Member buyer = memberService.findById(buyerId);
-            Member seller = memberService.findById(sellerId);
+            Member buyer = memberService.getMemberById(buyerId);
+            Member seller = memberService.getMemberById(sellerId);
             Delivery delivery = deliveryService.findById(deliveryId);
             Product product = productService.getProductByNo(product_no);
 //            Card card = cardService.findCardById(card_no);
@@ -191,7 +190,6 @@ public class IamPortController {
             System.out.println("error_msg:" + error_msg);
             responseObj.put("process_result", "결제에러:" + error_msg);
         }
-        System.out.println("responseObj:" + responseObj.toString());
         return new ResponseEntity<String>(responseObj.toString(), responseHeaders, HttpStatus.OK);
     }
 

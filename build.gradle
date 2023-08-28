@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.9'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'war'
 }
 
 group = 'test'
@@ -24,7 +25,7 @@ tasks.withType(Jar) {
 }
 
 bootJar{
-	archiveFileName = 'test1.jar' // 생성 파일명
+	archiveFileName = 'allgo.jar' // 생성 파일명
 	mainClass = 'test.testspring.TestSpringApplication' // 메인 클래스 명
 }
 
@@ -38,6 +39,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	//implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'javax.servlet:jstl'
 
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
 //	testImplementation('org.springframework.boot:spring-boot-starter-test'){
@@ -97,6 +102,18 @@ test {
 	exclude { '/**/*' }
 	useJUnitPlatform()
 }
+
+//sourceSets {
+//	ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+//	main {
+//		java {
+//			srcDirs "src/main/java"
+//		}
+//		resources {
+//			srcDirs "src/main/resources", "src/main/resources-env/${profile}"
+//		}
+//	}
+//}
 
 //tasks.named('test') {
 //	useJUnitPlatform()

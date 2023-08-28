@@ -2,6 +2,7 @@ package test.testspring.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,10 @@ import java.util.List;
 
 @Controller
 public class HomeController {
+
+    @Value("${server.url}")
+    String url;
+
     ProductService productService;
     @Autowired
     public HomeController(ProductService productService){
@@ -23,30 +28,18 @@ public class HomeController {
     }
     @RequestMapping("/")
     public String home(Model model){
+        System.out.println(url+"확인용"); //확인완료
+
         List<ProductDTO> products = productService.getMainProduct();
         model.addAttribute("products",products);
         return "home";
     }
-
-    @GetMapping("/admin")
-    public String admin(){
-        return "/admin/sample";
-    }
-
-
-
     @PostMapping("/admin/login")
     public String login2(HttpServletRequest request){
         String referer = request.getHeader("Referer");
-        System.out.println("Referer: " + referer);
         return "home";
     }
 
-    @GetMapping("/haeder")
-    public String haeder2(HttpServletRequest request){
-
-        return "fragment/header";
-    }
 
 //    @GetMapping("mypage")
 //    public String mypage(){

@@ -38,8 +38,9 @@ public class Product {
 
     //OneToMany 기본 로딩전략 lazy
     //
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="pid")
+    @Builder.Default
     private List<ProductImg> productImgs = new ArrayList<>();
     @OneToOne
     @JoinColumn(name="cate_code")

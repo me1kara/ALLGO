@@ -10,8 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +29,12 @@ import test.testspring.service.MemberService;
 import test.testspring.service.ProductService;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.Security;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -48,7 +52,7 @@ public class ProductController {
     ObjectMapper objectMapper;
 
     @RequestMapping("/hotDeal")
-    public String showHotdealProdcuts(
+    public String viewHotDealProduct(
                                       Model model) throws JsonProcessingException {
 
         List<Product> twentyProducts = productService.getHotProduct(0.2d);
@@ -80,7 +84,7 @@ public class ProductController {
     }
 
     @RequestMapping("/shopping")
-    public String showAllProducts(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+    public String viewProducts(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
                                                          @RequestParam(value = "size",defaultValue = "9",required = false) int size,
                                                          SearchDTO search,
                                                          Model model) throws JsonProcessingException {
@@ -92,12 +96,14 @@ public class ProductController {
         //String cateJson = objectMapper.writeValueAsString(cateList);
         model.addAttribute("cateJson", cateList);
 
+
+
         return "product/allProducts";
     }
 
 
     @RequestMapping("/ranking")
-    public String showProductRanking(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+    public String viewProductRanking(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
                                      @RequestParam(value = "size",defaultValue = "10",required = false) int size,
                                      @RequestParam(required = false) Long categoryId,
                                      @RequestParam(required = false) String date,
@@ -115,8 +121,8 @@ public class ProductController {
         return "product/ranking";
     }
 
-    @GetMapping("/productContent")
-    public String showProductContent(@RequestParam(value="product_no") Long product_no, Model model){
+    @GetMapping("/{product_no}")
+    public String viewProduct(@PathVariable Long product_no, Model model){
         Product product = productService.getProductByNo(product_no);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -143,7 +149,7 @@ public class ProductController {
     }
 
     @GetMapping("/updateProductForm")
-    public String updateProductForm(@RequestParam("productNo") Long productNo, Model model){
+    public String viewPutProduct(@RequestParam("productNo") Long productNo, Model model){
 
         Product product = productService.getProductByNo(productNo);
         model.addAttribute("product", product);
@@ -159,7 +165,7 @@ public class ProductController {
     }
 
     @PostMapping("/updateProduct")
-    public String updateProduct(Product product, ProductCategory category,@RequestParam("files") List<MultipartFile> files) throws Exception {
+    public String putProduct(Product product, ProductCategory category,@RequestParam("files") List<MultipartFile> files,HttpServletRequest request) throws Exception {
         System.out.println(product.getProductImgs().size());
 
         for(MultipartFile file : files) {
@@ -170,7 +176,7 @@ public class ProductController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         product.setProductCategory(category);
-        Member member= memberService.findById(userId);
+        Member member= memberService.getMemberById(userId);
         product.setMember(member);
         product.setCard(member.getCards().get(1));
         boolean result = productService.updateProduct(product,files);
@@ -181,13 +187,12 @@ public class ProductController {
     }
 
     @GetMapping("/deleteProductForm")
-    public String deleteProductForm(@RequestParam("productNo") Long productNo,Model model){
+    public String viewDeleteProduct(@RequestParam("productNo") Long productNo,Model model){
         model.addAttribute("productNo", productNo);
         return "product/deleteProductForm";
     }
     @PostMapping("/deleteProduct")
-    public String deleteProduct(@RequestParam("productNo") Long productNo){
-
+    public String deleteProduct(@PathVariable("productNo") Long productNo){
         boolean result = productService.deleteProduct(productNo);
 
         if(result){
@@ -198,7 +203,7 @@ public class ProductController {
 
 
     @GetMapping("/buyProduct")
-    public String processBuyProdcuct(@RequestParam(value="fproduct_no") Long fproduct_no,
+    public String viewBuyProduct(@RequestParam(value="fproduct_no") Long fproduct_no,
                                      @RequestParam(value="select-productCount") int amount,
                                      Model model
                                      ) {
@@ -206,7 +211,7 @@ public class ProductController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
 
-        Member member = memberService.findById(id);
+        Member member = memberService.getMemberById(id);
         List<Card> cards = member.getCards();
         product.setAmount(amount);
 
@@ -219,7 +224,7 @@ public class ProductController {
     }
 
     @GetMapping("/addProduct")
-    public String addProduct(Model model){
+    public String viewPostProduct(Model model){
         model.addAttribute("product", new Product());
         List<CategoryDto> cateList = productService.getCateCode();
         // List<ProductCategory>를 JSON 형식으로 변환, sout 확인용
@@ -230,13 +235,15 @@ public class ProductController {
     }
 
     @PostMapping("addProduct")
-    public String addProduct(Product product, @RequestParam("files") List<MultipartFile> files, ProductCategory category) throws IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public String postProduct(Authentication authentication,
+                              Product product, @RequestParam("files") List<MultipartFile> files, ProductCategory category, HttpServletRequest request) throws IOException {
         String userId = authentication.getName();
+        User user = (User) authentication.getPrincipal();
+
         product.setProductCategory(category);
-        Member member= memberService.findById(userId);
+        Member member= memberService.getMemberById(userId);
         product.setMember(member);
-        product.setCard(member.getCards().get(1));
+        product.setCard(member.getCards().get(0));
 
 
         productService.addProduct(product, files);
@@ -248,7 +255,7 @@ public class ProductController {
 
     @RequestMapping("/favorite")
     @ResponseBody
-    public String inclementFavorite(@RequestParam("product_no") Long product_no){
+    public String postFavorite(@RequestParam("product_no") Long product_no){
         // 현재 로그인된 사용자의 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
@@ -259,28 +266,28 @@ public class ProductController {
 
     @PostMapping("/keepProduct")
     @ResponseBody
-    public String keepProduct(@RequestParam("product_no") Long product_no,
+
+    public String postCart(@RequestParam("product_no") Long product_no,
                               @RequestParam("product_count") int product_count){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 사용자의 로그인 ID 가져오기
         String keeperId = authentication.getName();
-        log.info("save product {}", "");
 
         return productService.keepProduct(keeperId,product_no,product_count);
     }
 
     @PostMapping("/cancelCart")
     @ResponseBody
-    public ResponseEntity<String> cancelCart(@RequestParam("cnoList") List<Long> cnoList) {
+    public ResponseEntity<String> deleteCart(@RequestParam(value = "cnoList[]")List<Long> cnoList) {
 
-        System.out.println(cnoList.size());
+
         productService.cancelCart(cnoList);
         // 예시로 성공적으로 취소되었다고 가정하고 OK 응답을 반환
         return ResponseEntity.ok("취소되었습니다.");
     }
 
     @GetMapping("/cancelOrder")
-    public String cancelOrder(){
+    public String viewDeleteOrder(){
 
         return "/";
     }

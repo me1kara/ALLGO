@@ -35,16 +35,11 @@ public class HelpService {
     private HelpCommentRepository helpCommentRepository;
     private MemberRepository memberRepository;
 
-    @Value("${upload.helpImg}")
-    String fileUploadPath;
-
-    private FIleUpload fIleUpload;
     @Autowired
-    public HelpService(HelpRepository helpRepository, HelpCommentRepository helpCommentRepository, MemberRepository memberRepository, FIleUpload fIleUpload) {
+    public HelpService(HelpRepository helpRepository, HelpCommentRepository helpCommentRepository, MemberRepository memberRepository) {
         this.helpCommentRepository = helpCommentRepository;
         this.helpRepository = helpRepository;
         this.memberRepository = memberRepository;
-        this.fIleUpload = fIleUpload;
     }
 
     public Page<HelpBoard> getQuestionList(Pageable pageRequest, SearchDTO search) {

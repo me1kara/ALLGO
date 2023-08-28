@@ -37,7 +37,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### yml ###
-application-db.properties
+#### yml ###
+application-db_lcoal.properties
+application-db_prod.properties
+
 application-apiKeys.properties
 application-email.properties

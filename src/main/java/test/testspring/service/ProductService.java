@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,7 @@ import test.testspring.domain.*;
 import test.testspring.repository.*;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
@@ -35,17 +38,20 @@ public class ProductService {
     private final CartRepository cartRepository;
 
     private final ProductImgRepository productImgRepository;
+    private final ResourceLoader resourceLoader;
 
     @Value("${upload.productImg}")
     String fileUploadPath;
     @Autowired
-    public ProductService(ProductRepository productRepository, OrderRepository orderRepository, CategoryRepository categoryRepository, FavoriteRepository favoriteRepository, CartRepository cartRepository,ProductImgRepository productImgRepository) {
+    public ProductService(ProductRepository productRepository, OrderRepository orderRepository, CategoryRepository categoryRepository, FavoriteRepository favoriteRepository, CartRepository cartRepository,ProductImgRepository productImgRepository
+    ,ResourceLoader resourceLoader) {
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.categoryRepository = categoryRepository;
         this.favoriteRepository = favoriteRepository;
         this.cartRepository = cartRepository;
         this.productImgRepository = productImgRepository;
+        this.resourceLoader = resourceLoader;
     }
 
     public Page<ProductDTO> getAllProduct(Pageable pageRequest, SearchDTO search){
@@ -311,7 +317,6 @@ public class ProductService {
     private List<ProductImg> uploadFile(Product saveProduct, List<MultipartFile> multipartFiles) throws IOException {
 
         List<ProductImg> result = new ArrayList<ProductImg>();
-
         if (multipartFiles.isEmpty()) {
 
         } else {
@@ -334,9 +339,12 @@ public class ProductService {
                     String storeFilename = uuid + extension;
 
                     // 저장된 파일로 변경하여 이를 보여주기 위함
-                    String filePath = fileUploadPath + "/" + storeFilename;
-                    File file = new File(filePath);
-                    multipartFile.transferTo(file);
+                    File file = new File(getUploadedPath());
+                    if(!file.exists()) {//만일 디렉토리가 존재하지 않으면
+                        file.mkdirs(); //만들어 준다.
+                    }
+
+                    multipartFile.transferTo(new File(getUploadedPath()+"\\"+storeFilename));
 
                     // ProductImg 생성
                     ProductImg productImg = ProductImg.builder()
@@ -349,6 +357,12 @@ public class ProductService {
 
         }
         return result;
+    }
+
+    public String getUploadedPath() throws IOException {
+        Resource resource = resourceLoader.getResource("classpath:static/img/");
+        Path basePath = Path.of(resource.getURI());
+        return basePath.toString();
     }
 
 }

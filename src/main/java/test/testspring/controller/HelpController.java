@@ -42,13 +42,12 @@ public class HelpController {
         this.helpService = helpService;
     }
     @GetMapping("/question")
-    public String viewMain(Model model, String listItem){
+    public String viewFAQ(Model model, String listItem){
         model.addAttribute("listItem",listItem);
         return "/help/main";
     }
-
-    @GetMapping("/myQuestionList")
-    public String viewMyQuestionList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+    @GetMapping("/myQuestions")
+    public String vewMyHelps(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
                                       @RequestParam(value = "size",defaultValue = "10",required = false) int size,
                                       SearchDTO search,
                                       Model model,
@@ -63,14 +62,12 @@ public class HelpController {
         return "/help/myQuestionList";
     }
 
-
-
     @GetMapping("/write")
-    public String insertHelp(){
+    public String viewPostHelp(){
         return "/help/writeForm";
     }
     @PostMapping("/write")
-    public String insertHelp(HelpBoard help){
+    public String postHelp(HelpBoard help){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
         help.setResolved(true);
@@ -79,14 +76,14 @@ public class HelpController {
     }
 
     @GetMapping("/modify")
-    public String modifyHelp(Model model, Long id){
+    public String viewPutHelp(Model model, Long id){
         HelpBoard helpBoard = helpService.findOne(id);
         model.addAttribute("help",helpBoard);
         return "/help/modifyForm";
     }
 
     @PostMapping("/modify")
-    public String modifyHelp(HelpBoard helpBoard){
+    public String putHelp(HelpBoard helpBoard){
         helpService.modifyHelp(helpBoard);
         Long id = helpBoard.getId();
 
@@ -94,7 +91,7 @@ public class HelpController {
     }
 
     @GetMapping("/delete")
-    public String deleteHelp(Model model, Long id){
+    public String viewDeleteHelp(Model model, Long id){
         model.addAttribute("deleteNo",id);
         System.out.println(id);
         return "/help/deleteForm";
@@ -107,9 +104,8 @@ public class HelpController {
         return "redirect:/help/questionList";
     }
 
-
     @GetMapping("/questionList")
-    public String viewQuestionList(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
+    public String viewHelps(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
                                    @RequestParam(value = "size",defaultValue = "10",required = false) int size,
                                    SearchDTO search,
                                    Model model) throws JsonProcessingException {
@@ -120,8 +116,8 @@ public class HelpController {
         return "/help/questionList";
     }
 
-    @GetMapping("/questionContent")
-    public String viewQuestionContent(Model model, Long id,
+    @GetMapping("/{id}")
+    public String viewHelp(Model model, @PathVariable Long id,
                                       @RequestParam(value = "top", required = false) Double top) throws JsonProcessingException {
         HelpBoardDTO helpBoard = helpService.getQuestionContent(id);
 
@@ -153,7 +149,7 @@ public class HelpController {
     }
 
     @PostMapping("/addComment")
-    public String addComment(Model model,
+    public String postHelpComment(Model model,
                              HelpComment comment,
                              @RequestParam("position") double position) throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
