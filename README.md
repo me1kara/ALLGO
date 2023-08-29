@@ -44,7 +44,7 @@
   * 카테고리  
 
 ## 정보
-<a href="http://allgo24.store">서버 url</a>
+<a href="http://www.allgo24.store">서버 url</a>
 <br>
 <a href="https://www.youtube.com/watch?v=a3zDSY8GTOw">유튜브테스트영상</a>
 
