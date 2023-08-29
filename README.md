@@ -45,6 +45,6 @@
 
 ## 정보
 [<a href="https://www.youtube.com/watch?v=a3zDSY8GTOw">url</a>
-](http://allgo24.store/)
+](http://allgo24.store/)<br>
 <a href="https://www.youtube.com/watch?v=a3zDSY8GTOw">유튜브테스트영상</a>
 
