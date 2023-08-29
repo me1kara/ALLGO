@@ -160,7 +160,7 @@
     <div th:if="${products}">
     <section class="cards-wrap">
         <article class="card-top " th:each="product : ${products}">
-            <a class="card-link " data-event-label="572574579" th:href="@{/product/productContent(product_no=${product.product_no})}">
+            <a class="card-link " data-event-label="572574579" th:href="@{/product/{product_no}(product_no=${product.product_no})}">
                 <div class="card-photo ">
                     <picture th:each="img : ${product.productImgs}">
                         <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="121px" height="121px">

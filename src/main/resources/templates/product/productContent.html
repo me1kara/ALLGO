@@ -186,8 +186,7 @@ input {
                 },  
                 success : function(response){
                   if(response=='success'){
-                    console.log(window.location.pathname);
-                    window.location.href="http://localhost:7080/member/myPage?item=cart";
+                    alert('장바구니에 담겼습니다!');
                   }
                 },error : function(response){
                     alert('로그인해주세요!');

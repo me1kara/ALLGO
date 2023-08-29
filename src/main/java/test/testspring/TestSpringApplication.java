@@ -15,9 +15,5 @@ public class TestSpringApplication extends SpringBootServletInitializer{
 	public static void main(String[] args) {
 		SpringApplication.run(TestSpringApplication.class, args);
 	}
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(TestSpringApplication.class);
-	}
 
 }

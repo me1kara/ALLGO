@@ -24,18 +24,16 @@
 
     <script th:inline="javascript">
       $(document).ready(function(){
-            const listItem = [[${listItem}]];
-            switch(listItem){
-                  case "myQuestionList" : $('#myQuestionList').css('color','green').css('text-decoration','underline'); break;
-                  case "manyQuestionList" : $('#manyQuestionList').css('color','green').css('text-decoration','underline'); break;
-                  default : break;
-            }
             $('#question-list > li').click(function() {
                   $(this).find('div').toggle();
             });
       })
     </script>
     <style>
+      #manyQuestionList {
+        color: green;
+        text-decoration: underline;
+      }
       article > a {
         color: black;
         text-decoration: none;
@@ -69,12 +67,12 @@
         </article>
         <article class="border-bottom">
           <a
-            th:href="@{/help/myQuestionList?listItem=myQuestionList}"
+            th:href="@{/help/myQuestionList}"
             id="myQuestionList"
             >문의내역</a
           >
           <a
-            th:href="@{/help/question?listItem=manyQuestionList}"
+            th:href="@{/help/question}"
             id="manyQuestionList"
             >자주묻는 질문</a
           >
@@ -142,7 +140,7 @@
             <li
               class="text-center"
               style="list-style: none"
-              id="addListItem"
+              id="add"
               onclick="addListItem()"
             >
               <button class="btn">더보기</button>

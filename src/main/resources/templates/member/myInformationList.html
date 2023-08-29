@@ -73,7 +73,7 @@
         }
 
         function openWindowPop(url, name){
-            let aurl = 'http://localhost:7080'+url;
+            let aurl = window.location.origin+url;
             var options = 'top=10, left=10, width=500, height=300, status=no, menubar=no, toolbar=no, resizable=no';
             window.open(aurl, name, options);
         }

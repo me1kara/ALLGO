@@ -52,7 +52,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p from Product p join p.productCategory pc where pc.cateCode = :categoryId or pc.cateParent.cateCode = : categoryId")
     Page<Product> findAllByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
-    @Query(value = "select * from Product order by favorite desc",nativeQuery = true)
+    @Query(value = "select * from product order by favorite desc",nativeQuery = true)
     Page<Product> findAllOrderByFavorite(Pageable pageRequest);
 
     @Query("SELECT p " +
@@ -133,7 +133,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Transactional
     @Query("update Product p set p.favorite = p.favorite-1 where p.product_no = :product_no")
     void decrementFavoriteProduct(@Param("product_no")Long productNo);
-    @Query(value = "select p.* from Product p where :rate + 0.1 >= p.discount_rate and p.discount_rate > :rate limit 6", nativeQuery = true)
+    @Query(value = "select p.* from product p where :rate + 0.1 >= p.discount_rate and p.discount_rate > :rate limit 6", nativeQuery = true)
     List<Product> findLimitedByDiscountRate(@Param("rate") double rate);
 
     @Query("select p from Product p join p.productCategory pc where (pc.cateCode = :categoryId or pc.cateParent.cateCode = :categoryId) and (:rate + 0.1 >= p.discount_rate and p.discount_rate > :rate)")

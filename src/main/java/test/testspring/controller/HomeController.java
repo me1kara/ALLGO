@@ -18,8 +18,6 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-    @Value("${server.url}")
-    String url;
 
     ProductService productService;
     @Autowired
@@ -28,8 +26,6 @@ public class HomeController {
     }
     @RequestMapping("/")
     public String home(Model model){
-        System.out.println(url+"확인용"); //확인완료
-
         List<ProductDTO> products = productService.getMainProduct();
         model.addAttribute("products",products);
         return "home";

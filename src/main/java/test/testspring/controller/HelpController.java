@@ -46,19 +46,16 @@ public class HelpController {
         model.addAttribute("listItem",listItem);
         return "/help/main";
     }
-    @GetMapping("/myQuestions")
+    @GetMapping("/myQuestionList")
     public String vewMyHelps(@RequestParam(value = "page",defaultValue = "0",required = false) int page,
                                       @RequestParam(value = "size",defaultValue = "10",required = false) int size,
                                       SearchDTO search,
-                                      Model model,
-                                     String listItem) throws JsonProcessingException {
+                                      Model model) throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
         Pageable pageRequest = PageRequest.of(page,size);
         Page<HelpBoard> helps = helpService.findByMemberId(pageRequest,id,search.getKeyword());
         model.addAttribute("helps",helps);
-        model.addAttribute("listItem",listItem);
-
         return "/help/myQuestionList";
     }
 

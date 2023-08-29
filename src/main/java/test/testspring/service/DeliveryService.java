@@ -19,7 +19,7 @@ public class DeliveryService {
     public DeliveryService(DeliveryRepository deliveryRepository){
         this.deliveryRepository = deliveryRepository;
     }
-    public Delivery findById(Long id){
-        return deliveryRepository.findById(id).orElseThrow();
+    public Delivery findById(Long id) throws Exception {
+        return deliveryRepository.findById(id).orElseThrow(() -> new Exception());
     }
 }

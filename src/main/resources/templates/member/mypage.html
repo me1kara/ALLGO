@@ -1,441 +1,547 @@
-<!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragment/_layout}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<!DOCTYPE html>
+<html
+  lang="ko"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{fragment/_layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>  
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
-    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}">
-    <meta name="_csrf" th:content="${_csrf.token}">
+    <script
+      type="text/javascript"
+      src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
+    ></script>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
 
-    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage.css}" />
     <title>올고</title>
 
     <script th:inline="javascript">
+      var Imp;
+      var header = $("meta[name='_csrf_header']").attr("content");
+      var token = $("meta[name='_csrf']").attr("content");
 
-        var Imp;
-        var header = $("meta[name='_csrf_header']").attr('content');
-        var token = $("meta[name='_csrf']").attr('content');
+      $(document).ready(function () {
+        let item = getParam("item");
+        $("#" + item).css("background-color", "#ECECEC");
+        Imp = window.IMP;
+      });
+      function selectAll(selectAll) {
+        const checkboxes = document.getElementsByName("product");
+        checkboxes.forEach((checkbox) => {
+          checkbox.checked = selectAll.checked;
+        });
+      }
+      function getParam(param) {
+        let includeParam = location.search.includes(param);
+        let paramData = "";
+        if (includeParam) {
+          // 'date' 파라미터가 이미 URL에 있는 경우
+          const searchParams = new URLSearchParams(location.search);
+          const dateValue = searchParams.get("item");
+          paramData = dateValue;
+        }
 
-        $(document).ready(function(){
-            let item = getParam('item');
-            $('#'+item).css('background-color','#ECECEC');
-            Imp = window.IMP;
-        })
-        function selectAll(selectAll)  {
-          const checkboxes = document.getElementsByName('product');
+        return paramData;
+      }
+
+      function cancelOrder() {
+        let confirmation = confirm("정말로 취소하시겠습니까?");
+        if (confirmation) {
+          let checkboxes = document.getElementsByName("product");
+          let cnoList = [];
+          let j = 0;
           checkboxes.forEach((checkbox) => {
-            checkbox.checked = selectAll.checked;
-          })
-        }
-        function getParam(param){
-            let includeParam = location.search.includes(param);
-            let paramData = '';
-            if (includeParam) {
-                // 'date' 파라미터가 이미 URL에 있는 경우
-                const searchParams = new URLSearchParams(location.search);
-                const dateValue = searchParams.get('item');
-                paramData = dateValue;
-            }
-
-            return paramData;
-        }
-
-        function cancelOrder() {
-          let confirmation = confirm('정말로 취소하시겠습니까?');
-          if (confirmation) {
-            let checkboxes = document.getElementsByName('product');
-            let cnoList = [];
-            let j = 0;
-            checkboxes.forEach((checkbox) => {
-              if (checkbox.checked) {
-                if(cnoList[j]!='' || cnoList[j]!=null){
-                  cnoList[j] = checkbox.nextElementSibling.value;
-                }
-                j++;
+            if (checkbox.checked) {
+              if (cnoList[j] != "" || cnoList[j] != null) {
+                cnoList[j] = checkbox.nextElementSibling.value;
               }
+              j++;
+            }
+          });
+          if (cnoList.length != 0) {
+            $.ajax({
+              url: "/product/cancelCart",
+              type: "post",
+              data: { cnoList: cnoList },
+              beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+              },
+              success: function (res) {
+                alert("성공!");
+                for (let cno of cnoList) {
+                  let targetTr = document.querySelector(
+                    '[data-cid="' + "c" + cno + '"]'
+                  );
+                  targetTr.remove();
+                }
+              },
+              error: function (err) {
+                alert("취소에 실패하였습니다!");
+              },
             });
-            if(cnoList.length!=0){
-              $.ajax({
-                url: '/product/cancelCart',
-                type: 'post',
-                data: { cnoList : cnoList },
-                beforeSend: function(xhr){
-                    xhr.setRequestHeader(header, token);
-                },
-                success: function (res) {
-                  alert('성공!');
-                  window.location.reload(true);
-                },
-                error: function (err) {
-                  alert('취소에 실패하였습니다!');
+          } else alert("체크해주세요!");
+        }
+      }
+      function payment(element) {
+        let cid = $(element).data("cid");
+        let pname = $(element).data("productname");
+        let sellerId = $(element).data("sellerid");
+        let tradeAmount = $(element).data("tradeamount");
+        let pno = $(element).data("productno");
+
+        // let cardNo = $('#cardId').val();
+
+        IMP.init("imp07716558");
+
+        IMP.request_pay(
+          {
+            pg: "html5_inicis.INIpayTest",
+            pay_method: "card",
+            merchant_uid: "merchant_" + new Date().getTime(),
+            name: pname,
+            amount: "100", //total_price
+            //${book.res_pay},테스트용으로 100원 고정
+          },
+          function (rsp) {
+            let data = {
+              product_no: pno,
+              trade_amount: tradeAmount, //거래 수량
+              seller_id: sellerId,
+              delivery_id: 1,
+              cid: cid,
+            };
+            // callback
+            Object.assign(rsp, data);
+
+            //백단에 내용전달
+            $.ajax({
+              url: "/iamPort/paymentByCart",
+              type: "POST",
+              contentType: "application/json; charset=utf-8",
+              data: JSON.stringify(rsp),
+              beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+              },
+              success: function (result) {
+                //백단에 성공적으로 들어갔을시
+                //실패시 자동환불(백단에서)
+                let process_result = result.process_result.split(":");
+                if (process_result[0] == "결제성공") {
+                  let targetTr = document.querySelector(
+                    '[data-cid="' + "c" + cid + '"]'
+                  );
+                  targetTr.remove();
+                } else {
+                  alert(process_result[1]);
                 }
-              });
-            }else alert('체크해주세요!');
+              },
+              error: function (result) {},
+            });
           }
-        }
-        function payment(element) {
-
-          let cid = $(element).data('cid');
-          let pname = $(element).data('productname');
-          let sellerId = $(element).data('sellerid');
-          let tradeAmount = $(element).data('tradeamount');
-          let pno = $(element).data('productno');
-          
-      // let cardNo = $('#cardId').val();
-
-
-          IMP.init("imp07716558");
-
-          IMP.request_pay(
-            {
-              pg: 'html5_inicis.INIpayTest',
-              pay_method: 'card',
-              merchant_uid: 'merchant_' + new Date().getTime(),
-              name: pname,
-              amount: '100', //total_price
-              //${book.res_pay},테스트용으로 100원 고정
-            },
-            function (rsp) {
-              let data = {
-                product_no: pno,
-                trade_amount: tradeAmount, //거래 수량
-                seller_id: sellerId,
-                delivery_id: 1,
-                cid: cid,
-              }
-              // callback
-              Object.assign(rsp, data);
-
-              //백단에 내용전달
-              $.ajax({
-                url: '/iamPort/paymentByCart',
-                type: 'POST',
-                //dataType: 'json',
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(rsp),
-                beforeSend: function(xhr){
-                            xhr.setRequestHeader(header, token);
-                },success: function (result) {
-                  //백단에 성공적으로 들어갔을시
-                  //실패시 자동환불(백단에서)
-                  let process_result = result.process_result.split(":");
-                  if (process_result[0] == '결제성공') {
-                    alert('결제성공!');
-                    window.location.href.reload(true);
-                  } else {
-                    alert(process_result[1]);
-                  }
-                },
-                error: function (result) {
-                },
-              });
-            }
-          );
-
-        }
-
-        
-
-
+        );
+      }
     </script>
     <style>
+      #item-content h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ececec;
+        padding-bottom: 10px;
+      }
 
-#item-content h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ECECEC;
-  padding-bottom: 10px;
-}
+      #item-content p {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
 
-#item-content p {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
+      #item-content ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
 
-#item-content ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+      #item-content li {
+        margin-bottom: 10px;
+      }
 
-#item-content li {
-  margin-bottom: 10px;
-}
+      #item-content li span {
+        font-weight: bold;
+        margin-right: 10px;
+      }
 
-#item-content li span {
-  font-weight: bold;
-  margin-right: 10px;
-}
+      p,
+      span {
+        margin: 0;
+      }
 
+      a {
+        color: black;
+      }
 
-p,
-span {
-  margin: 0;
-}
+      .cart {
+        width: 80%;
+        margin: auto;
+        padding: 30px;
+      }
 
-a {
-  color: black;
-}
+      .cart ul {
+        background-color: whitesmoke;
+        padding: 30px;
+        margin-bottom: 50px;
+        border: whitesmoke solid 1px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 300;
+      }
 
-.cart {
-  width: 80%;
-  margin: auto;
-  padding: 30px;
-}
+      .cart ul :first-child {
+        color: limegreen;
+      }
 
-.cart ul {
-  background-color: whitesmoke;
-  padding: 30px;
-  margin-bottom: 50px;
-  border: whitesmoke solid 1px;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 300;
-}
+      table {
+        border-top: solid 1.5px black;
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+      }
 
-.cart ul :first-child {
-  color: limegreen;
-}
+      thead {
+        text-align: center;
+        font-weight: bold;
+      }
 
-table {
-  border-top: solid 1.5px black;
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 14px;
-}
+      tbody {
+        font-size: 12px;
+      }
 
-thead {
-  text-align: center;
-  font-weight: bold;
-}
+      td {
+        padding: 15px 0px;
+        border-bottom: 1px solid lightgrey;
+      }
 
-tbody {
-  font-size: 12px;
-}
+      .cart_list_detail :nth-child(3) {
+        vertical-align: top;
+      }
 
-td {
-  padding: 15px 0px;
-  border-bottom: 1px solid lightgrey;
-}
+      .cart_list_detail :nth-child(3) a {
+        font-size: 12px;
+      }
 
-.cart_list_detail :nth-child(3) {
-  vertical-align: top;
-}
+      .cart_list_detail :nth-child(3) p {
+        margin-top: 6px;
+        font-weight: bold;
+      }
 
-.cart_list_detail :nth-child(3) a {
-  font-size: 12px;
-}
+      .cart_list_smartstore {
+        font-size: 12px;
+        color: gray;
+      }
 
-.cart_list_detail :nth-child(3) p {
-  margin-top: 6px;
-  font-weight: bold;
-}
+      .cart_list_option {
+        vertical-align: top;
+        padding: 20px;
+      }
 
-.cart_list_smartstore {
-  font-size: 12px;
-  color: gray;
-}
+      .cart_list_option p {
+        margin-bottom: 25px;
+        position: relative;
+      }
 
-.cart_list_option {
-  vertical-align: top;
-  padding: 20px;
-}
+      .cart_list_option p::after {
+        content: "";
+        width: 90%;
+        height: 1px;
+        background-color: lightgrey;
+        left: 0px;
+        top: 25px;
+        position: absolute;
+      }
 
-.cart_list_option p {
-  margin-bottom: 25px;
-  position: relative;
-}
+      .cart_list_optionbtn {
+        background-color: white;
+        font-size: 10px;
+        border: lightgrey solid 1px;
+        padding: 7px;
+      }
 
-.cart_list_option p::after {
-  content: "";
-  width: 90%;
-  height: 1px;
-  background-color: lightgrey;
-  left: 0px;
-  top: 25px;
-  position: absolute;
-}
+      .cart_list_detail :nth-child(4),
+      .cart_list_detail :nth-child(5),
+      .cart_list_detail :nth-child(6) {
+        border-left: 2px solid whitesmoke;
+      }
 
-.cart_list_optionbtn {
-  background-color: white;
-  font-size: 10px;
-  border: lightgrey solid 1px;
-  padding: 7px;
-}
+      .cart_list_detail :nth-child(5),
+      .cart_list_detail :nth-child(6) {
+        text-align: center;
+      }
 
-.cart_list_detail :nth-child(4),
-.cart_list_detail :nth-child(5),
-.cart_list_detail :nth-child(6) {
-  border-left: 2px solid whitesmoke;
-}
+      .cart_list_detail :nth-child(5) button {
+        background-color: limegreen;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 4px 8px;
+        font-size: 12px;
+        margin-top: 5px;
+      }
 
-.cart_list_detail :nth-child(5),
-.cart_list_detail :nth-child(6) {
-  text-align: center;
-}
+      .price {
+        font-weight: bold;
+      }
 
-.cart_list_detail :nth-child(5) button {
-  background-color: limegreen;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 4px 8px;
-  font-size: 12px;
-  margin-top: 5px;
-}
+      .cart_mainbtns {
+        height: 200px;
+        padding-top: 40px;
+      }
 
-.price {
-  font-weight: bold;
-}
+      .cart_list_orderbtn {
+        font-size: 12px;
+        margin: auto;
+        border-radius: 5px;
+        color: white;
+        background-color: orange;
+        border: none;
+      }
 
-.cart_mainbtns {
-  height: 200px;
-  padding-top: 40px;
-}
+      .cart_bigorderbtn {
+        width: 200px;
+        height: 50px;
+        font-size: 16px;
+        margin: auto;
+        border-radius: 5px;
+      }
 
-.cart_list_orderbtn{
-  font-size: 12px;
-  margin: auto;
-  border-radius: 5px;
-  color: white;
-  background-color: orange;
-  border: none;
-}
+      .cart_bigorderbtn.left {
+        background-color: white;
+        border: 1px lightgray solid;
+      }
 
-.cart_bigorderbtn {
-  width: 200px;
-  height: 50px;
-  font-size: 16px;
-  margin: auto;
-  border-radius: 5px;
-}
-
-.cart_bigorderbtn.left {
-  background-color: white;
-  border: 1px lightgray solid;
-}
-
-.cart_bigorderbtn.right {
-  background-color: orange;
-  color: white;
-  border: none;
-}
-
-
+      .cart_bigorderbtn.right {
+        background-color: orange;
+        color: white;
+        border: none;
+      }
     </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <main style="padding-top: 10px" class="container">
+        <section id="item-list">
+          <ul>
+            <!-- 클릭시 해당 목록 오른쪽에 나열 -->
+            <li>
+              <a th:href="@{/member/myPage?item=cart}" id="cart">장바구니</a>
+            </li>
+            <li>
+              <a th:href="@{/member/myPage?item=orderList}" id="orderList"
+                >주문조회</a
+              >
+            </li>
+            <li>
+              <a th:href="@{/member/myInformationList}" id="myInformation"
+                >내정보관리</a
+              >
+            </li>
+          </ul>
+        </section>
+        <section id="item-content">
+          <table class="cart_list" th:if="${myCart}">
+            <div class="cart_information">
+              <ul>
+                <li>
+                  가격, 옵션 등 정보가 변경된 경우 주문이 불가할 수 있습니다.
+                </li>
+                <li>
+                  오늘출발 상품은 판매자 설정 시점에 따라 오늘출발 여부가 변경될
+                  수 있으니 주문 시 꼭 다시 확인해 주시기 바랍니다.
+                </li>
+              </ul>
+            </div>
+            <form>
+              <thead>
+                <tr>
+                  <td>
+                    <input
+                      type="checkbox"
+                      name="product"
+                      onclick="selectAll(this)"
+                    />
+                  </td>
+                  <td colspan="2">상품정보</td>
+                  <td>상품금액</td>
+                  <td>배송비</td>
+                </tr>
+              </thead>
+              <tbody th:if="${myCart}">
+                <tr
+                  class="cart_list_detail"
+                  th:each="cart:${myCart}"
+                  th:data-cid="c+${cart.cid}"
+                >
+                  <td>
+                    <input type="checkbox" name="product" />
+                    <input type="hidden" th:value="${cart.cid}" />
+                  </td>
+                  <td>
+                    <picture th:each="img : ${cart.product.productImgs}">
+                      <source
+                        th:srcset="@{'/img/' + ${img.url}}"
+                        type="image/webp"
+                        width="60px"
+                        height="60px"
+                      />
+                      <source
+                        th:srcset="@{'/img/' + ${img.url}}"
+                        type="image/jpeg"
+                      />
+                      <img
+                        src="https://via.placeholder.com/150"
+                        alt="샘플이미지"
+                        th:src="@{'/img/' + ${img.url}}"
+                        width="60px"
+                        height="60px"
+                      />
+                    </picture>
+                  </td>
+                  <td>
+                    <p th:text="${cart.product.product_name}">
+                      Apple 매직 키보드 - 한국어(MK2A3KH/A)
+                    </p>
 
-</head>
-<body>
-<div layout:fragment="content">
-      <main style="padding-top: 10px;" class="container">
-            <section id="item-list">
-                  <ul>
-                        <!-- 클릭시 해당 목록 오른쪽에 나열 -->
-                        <li><a th:href="@{/member/myPage?item=cart}" id="cart">장바구니</a></li>
-                        <li><a th:href="@{/member/myPage?item=orderList}" id="orderList">주문조회</a></li>
-                        <li><a th:href="@{/member/myInformationList}" id="myInformation">내정보관리</a></li>
-                  </ul>
-            </section>
-            <section id="item-content">
-                    <table class="cart_list" th:if="${myCart}">
-                        <div class="cart_information">
-                            <ul>
-                                <li>가격, 옵션 등 정보가 변경된 경우 주문이 불가할 수 있습니다.</li>
-                                <li>오늘출발 상품은 판매자 설정 시점에 따라 오늘출발 여부가 변경될 수 있으니 주문 시 꼭 다시 확인해 주시기 바랍니다.</li>
-                            </ul>
-                        </div>
-                        <form>
-                            <thead>
-                                <tr>
-                                    <td><input type="checkbox" name="product" onclick="selectAll(this)"></td>
-                                    <td colspan="2">상품정보</td>
-                                    <td>상품금액</td>
-                                    <td>배송비</td>
-                                </tr>
-                            </thead>
-                            <tbody th:if="${myCart}">
-                                <tr class="cart_list_detail" th:each="cart:${myCart}">
-                                    <td>
-                                      <input type="checkbox" name="product">
-                                      <input type="hidden" th:value="${cart.cid}">
-                                    </td>
-                                    <td>                    
-                                      <picture th:each="img : ${cart.product.productImgs}">
-                                        <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="60px" height="60px">
-                                        <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg">
-                                        <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="60px" height="60px">
-                                      </picture>
-                                  </td>
-                                    <td>
-                                        <p th:text="${cart.product.product_name}">Apple 매직 키보드 - 한국어(MK2A3KH/A)</p>
-                                        
-                                        <sapn th:if="${cart.product.discount_rate}" class="price" th:text="${cart.product.price*(1-cart.product.discount_rate) + '원' }">116,62원</sapn>
-                                        <sapn th:if="${cart.product.discount_rate==null}" class="price" th:text="${cart.product.price + '원' }">116,62원</sapn>
-                                        <span style="text-decoration: line-through; color: lightgray;" th:text="${cart.product.price}">119,000</span>
-                                    </td>
-                                    <td>
-                                        <span class="price" th:if="${cart.product.discount_rate}" th:text="${cart.product.price*(1-cart.product.discount_rate) + '원' }">116,620원</span>
-                                        <span class="price" th:if="${cart.product.discount_rate==null}" th:text="${cart.product.price + '원' }">116,620원</span>
-                                      <br>
-                                        <button type="button" class="cart_list_orderbtn" onclick="payment(this)" th:data-cid="${cart.cid}" th:data-productName="${cart.product.product_name}" th:data-sellerId="${cart.product.member.id}" th:data-tradeAmount="${cart.pCount}" th:data-productNo="${cart.product.product_no}">주문하기</button>
-                                    </td>
-                                    <td>무료</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                              <tr class="cart_mainbtns text-center" >
-                                  <td colspan="5">
-                                    <button class="cart_bigorderbtn left" onclick="cancelOrder();">취소하기</button>
-                                  </td>
-                                </tr>
-                            </tfoot>
-                        </form>
-                    </table>
-                    <table class="cart_list" th:if="${orderList}">
-                      <!-- <div class="cart_information">
+                    <sapn
+                      th:if="${cart.product.discount_rate}"
+                      class="price"
+                      th:text="${cart.product.price*(1-cart.product.discount_rate) + '원' }"
+                      >116,62원</sapn
+                    >
+                    <sapn
+                      th:if="${cart.product.discount_rate==null}"
+                      class="price"
+                      th:text="${cart.product.price + '원' }"
+                      >116,62원</sapn
+                    >
+                    <span
+                      style="text-decoration: line-through; color: lightgray"
+                      th:text="${cart.product.price}"
+                      >119,000</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      class="price"
+                      th:if="${cart.product.discount_rate}"
+                      th:text="${cart.product.price*(1-cart.product.discount_rate) + '원' }"
+                      >116,620원</span
+                    >
+                    <span
+                      class="price"
+                      th:if="${cart.product.discount_rate==null}"
+                      th:text="${cart.product.price + '원' }"
+                      >116,620원</span
+                    >
+                    <br />
+                    <button
+                      type="button"
+                      class="cart_list_orderbtn"
+                      onclick="payment(this)"
+                      th:data-cid="${cart.cid}"
+                      th:data-productName="${cart.product.product_name}"
+                      th:data-sellerId="${cart.product.member.id}"
+                      th:data-tradeAmount="${cart.pCount}"
+                      th:data-productNo="${cart.product.product_no}"
+                    >
+                      주문하기
+                    </button>
+                  </td>
+                  <td>무료</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="cart_mainbtns text-center">
+                  <td colspan="5">
+                    <button
+                      class="cart_bigorderbtn left"
+                      onclick="cancelOrder();"
+                    >
+                      취소하기
+                    </button>
+                  </td>
+                </tr>
+              </tfoot>
+            </form>
+          </table>
+          <table class="cart_list" th:if="${orderList}">
+            <!-- <div class="cart_information">
                         <ul>
                             <li>주문현황은 결제일로부터 14일간 저장됩니다.</li>
                             <li>가격, 옵션 등 정보가 변경된 경우 주문이 불가할 수 있습니다.</li>
                             <li>오늘출발 상품은 판매자 설정 시점에 따라 오늘출발 여부가 변경될 수 있으니 주문 시 꼭 다시 확인해 주시기 바랍니다.</li>
                         </ul>
                     </div> -->
-                    <form>
-                        <thead>
-                            <tr>
-                                <td colspan="2">상품정보</td>
-                                <td>결제일</td>
-                            </tr>
-                        </thead>
-                        <tbody th:if="${!orderList.isEmpty()}">
-                            <tr class="cart_list_detail" th:each="order:${orderList}">
-                                <td>                                      
-                                <picture th:each="img : ${order.product.productImgs}">
-                                  <source th:srcset="@{'/img/' + ${img.url}}" type="image/webp" width="60px" height="60px">
-                                  <source th:srcset="@{'/img/' + ${img.url}}" type="image/jpeg">
-                                  <img src="https://via.placeholder.com/150" alt="샘플이미지" th:src="@{'/img/' + ${img.url}}" width="60px" height="60px">
-                                </picture>
-                              </td>
-                                <td>
-                                    <p th:text="${order.product.product_name}">Apple 매직 키보드 - 한국어(MK2A3KH/A)</p>
-                                    <sapn class="price" th:text="${order.total_price + '원' }">116,62원</sapn>
-                                </td>
-                                <td style="text-align: center;">
-                                  <span th:text="${order.payment_at != null ? #temporals.format(order.payment_at, 'yyyy-MM-dd') : 'N/A'}"></span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </form>
-                    </table>
-            </section>
-            <div style="clear: both;"></div>
+            <form>
+              <thead>
+                <tr>
+                  <td colspan="2">상품정보</td>
+                  <td>결제일</td>
+                </tr>
+              </thead>
+              <tbody th:if="${!orderList.isEmpty()}">
+                <tr class="cart_list_detail" th:each="order:${orderList}">
+                  <td>
+                    <picture th:each="img : ${order.product.productImgs}">
+                      <source
+                        th:srcset="@{'/img/' + ${img.url}}"
+                        type="image/webp"
+                        width="60px"
+                        height="60px"
+                      />
+                      <source
+                        th:srcset="@{'/img/' + ${img.url}}"
+                        type="image/jpeg"
+                      />
+                      <img
+                        src="https://via.placeholder.com/150"
+                        alt="샘플이미지"
+                        th:src="@{'/img/' + ${img.url}}"
+                        width="60px"
+                        height="60px"
+                      />
+                    </picture>
+                  </td>
+                  <td>
+                    <p th:text="${order.product.product_name}">
+                      Apple 매직 키보드 - 한국어(MK2A3KH/A)
+                    </p>
+                    <sapn class="price" th:text="${order.total_price + '원' }"
+                      >116,62원</sapn
+                    >
+                  </td>
+                  <td style="text-align: center">
+                    <span
+                      th:text="${order.payment_at != null ? #temporals.format(order.payment_at, 'yyyy-MM-dd') : 'N/A'}"
+                    ></span>
+                  </td>
+                </tr>
+              </tbody>
+            </form>
+          </table>
+        </section>
+        <div style="clear: both"></div>
       </main>
-</div>
-</body>
+    </div>
+  </body>
 </html>

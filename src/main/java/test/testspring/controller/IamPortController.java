@@ -44,7 +44,7 @@ public class IamPortController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<?> postBook(@RequestBody Map<String, Object> model, HttpServletRequest req) {
+    public ResponseEntity<?> postBook(@RequestBody Map<String, Object> model, HttpServletRequest req) throws Exception {
         //map, json 으로 받고 보내기
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "application/json; charset=UTF-8");
@@ -66,23 +66,23 @@ public class IamPortController {
         String error_msg = (String)model.get("error_msg");
         //결제성공했을시
         if(success==true) {
-            Member buyer = memberService.getMemberById(buyerId);
-            Member seller = memberService.getMemberById(sellerId);
-            Delivery delivery = deliveryService.findById(deliveryId);
-            Product product = productService.getProductByNo(product_no);
+            try {
+                Member buyer = memberService.getMemberById(buyerId);
+                Member seller = memberService.getMemberById(sellerId);
+                Delivery delivery = deliveryService.findById(deliveryId);
+                Product product = productService.getProductByNo(product_no);
 //            Card card = cardService.findCardById(card_no);
 
-            Order order = Order.builder().imp_uid(imp_uid)
-                            .merchant_uid(merchant_uid)
-                            .total_price(money)
-                    .seller(seller)
-                    .buyer(buyer)
-                    .delivery(delivery)
-                    .product(product)
-                    .trade_amount(tradeAmount)
+                Order order = Order.builder().imp_uid(imp_uid)
+                        .merchant_uid(merchant_uid)
+                        .total_price(money)
+                        .seller(seller)
+                        .buyer(buyer)
+                        .delivery(delivery)
+                        .product(product)
+                        .trade_amount(tradeAmount)
 //                    .card(card)
-                    .build();
-            try {
+                        .build();
                 //프론트단에서 보낸 금액과 아임포트에서 가져온 금액의 일치여부 검사
                 IamportClient ic = new IamportClient(imp_key, imp_secret);
                 IamportResponse<Payment> response = ic.paymentByImpUid(imp_uid);
@@ -119,8 +119,7 @@ public class IamPortController {
     }
 
     @PostMapping("/paymentByCart")
-    public ResponseEntity<?> postBookInCarts(@RequestBody Map<String, Object> model, HttpServletRequest req) {
-        System.out.println("입장확인");
+    public ResponseEntity<?> postBookInCarts(@RequestBody Map<String, Object> model, HttpServletRequest req) throws Exception {
         //map, json 으로 받고 보내기
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "application/json; charset=UTF-8");
@@ -142,23 +141,23 @@ public class IamPortController {
         String error_msg = (String)model.get("error_msg");
         //결제성공했을시
         if(success==true) {
-            Member buyer = memberService.getMemberById(buyerId);
-            Member seller = memberService.getMemberById(sellerId);
-            Delivery delivery = deliveryService.findById(deliveryId);
-            Product product = productService.getProductByNo(product_no);
+            try {
+                Member buyer = memberService.getMemberById(buyerId);
+                Member seller = memberService.getMemberById(sellerId);
+                Delivery delivery = deliveryService.findById(deliveryId);
+                Product product = productService.getProductByNo(product_no);
 //            Card card = cardService.findCardById(card_no);
 
-            Order order = Order.builder().imp_uid(imp_uid)
-                    .merchant_uid(merchant_uid)
-                    .total_price(money)
-                    .seller(seller)
-                    .buyer(buyer)
-                    .delivery(delivery)
-                    .product(product)
-                    .trade_amount(tradeAmount)
+                Order order = Order.builder().imp_uid(imp_uid)
+                        .merchant_uid(merchant_uid)
+                        .total_price(money)
+                        .seller(seller)
+                        .buyer(buyer)
+                        .delivery(delivery)
+                        .product(product)
+                        .trade_amount(tradeAmount)
 //                    .card(card)
-                    .build();
-            try {
+                        .build();
                 //프론트단에서 보낸 금액과 아임포트에서 가져온 금액의 일치여부 검사
                 IamportClient ic = new IamportClient(imp_key, imp_secret);
                 IamportResponse<Payment> response = ic.paymentByImpUid(imp_uid);
